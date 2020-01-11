@@ -2,8 +2,7 @@
 
 #define ForwardGPUHandle(
 
-namespace aw
-{
+namespace aw {
 template <typename Type>
 struct GPUHandle
 {

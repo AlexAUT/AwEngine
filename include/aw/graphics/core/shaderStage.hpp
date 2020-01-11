@@ -5,13 +5,9 @@
 
 #include <vulkan/vk_safe_struct.h>
 
-namespace vk
-{
+namespace vk {}
 
-}
-
-namespace aw
-{
+namespace aw {
 class ShaderStage
 {
 public:

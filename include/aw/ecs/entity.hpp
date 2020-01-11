@@ -2,8 +2,7 @@
 
 #include <stdint.h>
 
-namespace aw::ecs
-{
+namespace aw::ecs {
 class Entity
 {
 public:

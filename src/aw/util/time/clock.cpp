@@ -1,7 +1,6 @@
 #include <aw/util/time/clock.hpp>
 
-namespace aw
-{
+namespace aw {
 GameClock::duration Clock::restart()
 {
   GameClock::time_point oldStart = mStartPoint;

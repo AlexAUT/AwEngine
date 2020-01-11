@@ -5,8 +5,7 @@
 #include <limits>
 #include <vector>
 
-namespace aw::msg
-{
+namespace aw::msg {
 class ChannelBase
 {
 public:
@@ -64,13 +63,11 @@ private:
 } // namespace aw::msg
 
 // Implementation
-namespace aw::msg
-{
+namespace aw::msg {
 template <typename EventType>
 Subscription<EventType>::Subscription(Channel<EventType>& channel, SubscriptionId subscriptionId) :
     mChannel(channel), mSubscriptionId(subscriptionId)
-{
-}
+{}
 
 template <typename EventType>
 Subscription<EventType>::~Subscription()
@@ -94,8 +91,7 @@ Subscription<EventType>& Subscription<EventType>::operator=(Subscription<EventTy
 template <typename EventType>
 void Subscription<EventType>::unsubscribe()
 {
-  if (mSubscriptionId != Channel<EventType>::npos)
-  {
+  if (mSubscriptionId != Channel<EventType>::npos) {
     mChannel.unsubscribe(mSubscriptionId);
   }
 }
@@ -126,10 +122,8 @@ auto Channel<EventType>::subscribeUnsafe(Callback callback) -> SubscriptionId
 template <typename EventType>
 bool Channel<EventType>::unsubscribe(SubscriptionId id)
 {
-  for (unsigned i = 0; i < mIdMappings.size(); i++)
-  {
-    if (mIdMappings[i] == id)
-    {
+  for (unsigned i = 0; i < mIdMappings.size(); i++) {
+    if (mIdMappings[i] == id) {
       mIdMappings.erase(std::next(mIdMappings.begin(), i));
       mSubscribers.erase(std::next(mSubscribers.begin(), i));
 

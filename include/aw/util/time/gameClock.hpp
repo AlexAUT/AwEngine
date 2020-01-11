@@ -2,8 +2,7 @@
 
 #include <chrono>
 
-namespace aw
-{
+namespace aw {
 class GameClock
 {
 public:

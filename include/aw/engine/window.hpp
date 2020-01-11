@@ -2,12 +2,10 @@
 
 #include <SFML/Window/Window.hpp>
 
-namespace aw
-{
+namespace aw {
 struct WindowSettings;
 
-namespace msg
-{
+namespace msg {
 class Bus;
 }
 

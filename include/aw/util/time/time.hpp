@@ -4,8 +4,7 @@
 
 #include <chrono>
 
-namespace aw
-{
+namespace aw {
 using Seconds = std::chrono::duration<float>;
 using MilliSeconds = std::chrono::duration<float, std::milli>;
 using MicroSeconds = std::chrono::duration<float, std::micro>;

@@ -2,7 +2,4 @@
 
 #include <vulkan/vulkan.hpp>
 
-namespace aw
-{
-
-}
+namespace aw {}

@@ -4,8 +4,7 @@
 
 #include <string>
 
-namespace aw
-{
+namespace aw {
 struct WindowSettings
 {
   std::string title;

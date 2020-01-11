@@ -1,7 +1,7 @@
+
 #include <aw/engine/stateMachine.hpp>
 
-namespace aw
-{
+namespace aw {
 State* StateMachine::activeState()
 {
   return mStateStack.empty() ? nullptr : mStateStack.top().get();
@@ -24,24 +24,18 @@ void StateMachine::popAllStates()
 
 void StateMachine::update()
 {
-  if (mPopCount > 0)
-  {
-    if (mPopCount >= mStateStack.size())
-    {
+  if (mPopCount > 0) {
+    if (mPopCount >= mStateStack.size()) {
       mStateStack = {};
       mPopCount = 0;
-    }
-    else
-    {
-      while (mPopCount > 0)
-      {
+    } else {
+      while (mPopCount > 0) {
         mStateStack.pop();
       }
     }
   }
 
-  while (!mPushQueue.empty())
-  {
+  while (!mPushQueue.empty()) {
     mStateStack.push(std::move(mPushQueue.front()));
     mPushQueue.pop();
   }

@@ -55,6 +55,7 @@ if (AW_BUILD_TESTS)
   set(AW_TEST_SOURCES
     tests/main.cpp
     tests/ecs/test_componentStorage.cpp
+    tests/ecs/test_systems.cpp
     tests/ecs/test_view.cpp
     tests/ecs/test_world.cpp
   )

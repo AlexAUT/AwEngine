@@ -1,7 +1,6 @@
 #include <aw/engine/state.hpp>
 
-namespace aw
-{
+namespace aw {
 State::State(StateMachine& stateMachine) : mStateMachine(stateMachine) {}
 
 StateMachine& State::stateMachine()

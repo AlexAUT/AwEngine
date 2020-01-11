@@ -8,8 +8,7 @@
 #include <queue>
 #include <stack>
 
-namespace aw
-{
+namespace aw {
 class StateMachine
 {
 public:

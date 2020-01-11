@@ -6,8 +6,7 @@
 #include <memory>
 #include <vector>
 
-namespace aw::msg
-{
+namespace aw::msg {
 class Bus
 {
 public:
@@ -31,8 +30,7 @@ private:
 } // namespace aw::msg
 
 // Implementation
-namespace aw::msg
-{
+namespace aw::msg {
 template <typename EventType>
 Channel<EventType>& Bus::channel()
 {
@@ -41,8 +39,7 @@ Channel<EventType>& Bus::channel()
   if (mChannels.size() <= channelIndex)
     mChannels.resize(channelIndex + 1);
 
-  if (!mChannels[channelIndex])
-  {
+  if (!mChannels[channelIndex]) {
     mChannels[channelIndex].reset(new Channel<EventType>());
   }
   return *static_cast<Channel<EventType>*>(mChannels[channelIndex].get());
@@ -56,8 +53,7 @@ const Channel<EventType>& Bus::channel() const
   if (mChannels.size() <= channelIndex)
     mChannels.resize(channelIndex + 1);
 
-  if (!mChannels[channelIndex])
-  {
+  if (!mChannels[channelIndex]) {
     mChannels[channelIndex].reset(new Channel<EventType>());
   }
   return *static_cast<Channel<EventType>*>(mChannels[channelIndex].get());

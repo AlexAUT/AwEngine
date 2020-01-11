@@ -3,8 +3,7 @@
 #include <aw/ecs/entity.hpp>
 #include <aw/ecs/sparseSet.hpp>
 
-namespace aw::ecs
-{
+namespace aw::ecs {
 class ComponentStorageBase
 {
 public:
@@ -15,8 +14,7 @@ class ComponentStorage : public ComponentStorageBase, public SparseSet<Component
 {
   virtual void removeEntity(Entity e)
   {
-    if (this->has(e))
-    {
+    if (this->has(e)) {
       this->erase(e);
     }
   }

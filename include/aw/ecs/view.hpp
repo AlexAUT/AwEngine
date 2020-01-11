@@ -1,10 +1,8 @@
 #pragma once
 
 #include <aw/ecs/componentStorage.hpp>
-#include <aw/ecs/world.hpp>
 
-namespace aw::ecs
-{
+namespace aw::ecs {
 template <typename... Components>
 class View
 {
@@ -17,8 +15,7 @@ public:
 
   public:
     Iterator(EntityIterator entityIterator, Storages& storages) : mEntityIterator{entityIterator}, mStorages{storages}
-    {
-    }
+    {}
 
     operator bool() const
     {
@@ -38,8 +35,7 @@ public:
         return (storages.has(e) && ...);
       };
       auto end = std::get<0>(mStorages).entityEnd();
-      do
-      {
+      do {
         ++mEntityIterator;
       } while (mEntityIterator != end && !std::apply(haveAll, mStorages));
 
@@ -90,7 +86,9 @@ public:
 
 public:
   View() = default;
-  View(World& world) : mStorages{world.getStorage<Components>()...} {}
+  template <typename WorldT>
+  View(WorldT& world) : mStorages{world.template getStorage<Components>()...}
+  {}
 
   auto begin() { return Iterator(std::get<0>(mStorages).entityBegin(), mStorages); }
   auto end() { return Iterator(std::get<0>(mStorages).entityEnd(), mStorages); }

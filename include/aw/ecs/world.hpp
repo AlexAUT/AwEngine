@@ -5,6 +5,7 @@
 #include <aw/ecs/nameResolver.hpp>
 #include <aw/ecs/sparseSet.hpp>
 #include <aw/ecs/systemGroup.hpp>
+#include <aw/ecs/view.hpp>
 #include <aw/util/time/time.hpp>
 
 #include <array>
@@ -13,8 +14,7 @@
 #include <unordered_map>
 #include <vector>
 
-namespace aw::ecs
-{
+namespace aw::ecs {
 class World
 {
 public:
@@ -51,6 +51,11 @@ public:
   template <typename Component>
   void unset(Entity e);
 
+  SystemGroup& systems(SystemType);
+
+  template <typename... Components>
+  void registerSystem(SystemType, std::function<void(aw::Seconds, Entity, Components&...)>);
+
   void update(aw::Seconds dt);
 
   template <typename Component>
@@ -76,8 +81,7 @@ private:
 };
 } // namespace aw::ecs
 
-namespace aw::ecs
-{
+namespace aw::ecs {
 template <typename Component>
 bool World::has(Entity e)
 {
@@ -141,6 +145,17 @@ ComponentStorage<Component>& World::getStorage() const
   assert(registered<Component>());
   auto index = mComponentLookup.find(getComponentName<Component>())->second;
   return *static_cast<ComponentStorage<Component>*>(mComponentStorages[index].get());
+}
+
+template <typename... Components>
+void World::registerSystem(SystemType type, std::function<void(aw::Seconds, Entity, Components&...)> callback)
+{
+  systems(type).add([this, callback](aw::Seconds dt) {
+    aw::ecs::View<Components...> view(*this);
+    for (auto it : view) {
+      std::apply(callback, std::tuple_cat(std::make_tuple(dt), it));
+    }
+  });
 }
 
 } // namespace aw::ecs

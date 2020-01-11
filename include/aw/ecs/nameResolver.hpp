@@ -3,8 +3,7 @@
 #include <string_view>
 #include <typeinfo>
 
-namespace aw::ecs
-{
+namespace aw::ecs {
 template <typename T>
 std::string_view getComponentName();
 

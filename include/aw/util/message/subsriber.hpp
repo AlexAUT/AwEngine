@@ -5,8 +5,7 @@
 
 #include <iostream>
 
-namespace aw::msg
-{
+namespace aw::msg {
 class Bus;
 
 // Utility class to subscribe/unsibscribe automatically
@@ -19,8 +18,7 @@ public:
         auto* instance = static_cast<HostClass*>(this);
         instance->receive(event);
       }))...})
-  {
-  }
+  {}
 
 private:
 private:

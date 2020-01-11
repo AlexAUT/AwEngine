@@ -1,7 +1,5 @@
 #include <aw/ecs/world.hpp>
 
-#include <aw/ecs/view.hpp>
-
 #include <cassert>
 
 namespace aw::ecs {
@@ -59,5 +57,15 @@ void World::update(aw::Seconds dt)
     mAliveEntities--;
   }
   mEraseList.clear();
+
+  // Update systems
+  systems(SystemType::OnUpdate).update(dt);
 }
+
+SystemGroup& World::systems(SystemType type)
+{
+  assert(type != SystemType::Count);
+  return mSystemGroups[static_cast<std::size_t>(type)];
+}
+
 } // namespace aw::ecs

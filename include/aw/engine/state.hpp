@@ -2,8 +2,7 @@
 
 #include <aw/util/time/time.hpp>
 
-namespace aw
-{
+namespace aw {
 class StateMachine;
 
 class State

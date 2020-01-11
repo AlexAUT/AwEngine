@@ -3,8 +3,7 @@
 #include <aw/util/time/gameClock.hpp>
 #include <aw/util/time/time.hpp>
 
-namespace aw
-{
+namespace aw {
 class Clock
 {
 public:

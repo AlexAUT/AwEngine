@@ -5,8 +5,7 @@
 
 #include <SFML/Window/Event.hpp>
 
-namespace aw
-{
+namespace aw {
 Window::Window(const WindowSettings& settings, const msg::Bus& bus) : mBus{bus}
 {
   sf::ContextSettings cSettings;
@@ -25,8 +24,7 @@ void Window::close()
 void Window::update()
 {
   sf::Event event;
-  while (mWindow.pollEvent(event))
-  {
+  while (mWindow.pollEvent(event)) {
     mBus.channel<sf::Event>().broadcast(event);
   }
 }

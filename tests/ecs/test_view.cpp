@@ -1,8 +1,9 @@
 #include "../doctest.h"
 
 #include <aw/ecs/entity.hpp>
-#include <aw/ecs/view.hpp>
 #include <aw/ecs/world.hpp>
+
+#include <aw/ecs/view.hpp>
 
 #include <algorithm>
 #include <string>

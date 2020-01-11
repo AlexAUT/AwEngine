@@ -4,8 +4,7 @@
 #include <aw/engine/window.hpp>
 #include <aw/util/message/bus.hpp>
 
-namespace aw
-{
+namespace aw {
 class Engine
 {
 public:

@@ -2,8 +2,7 @@
 
 #include <spdlog/spdlog.h>
 
-namespace aw::log
-{
+namespace aw::log {
 template <typename... Args>
 void debug(const char* format, Args&&... args)
 {

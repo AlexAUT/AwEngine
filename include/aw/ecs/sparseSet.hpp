@@ -7,8 +7,7 @@
 #include <optional>
 #include <vector>
 
-namespace aw::ecs
-{
+namespace aw::ecs {
 constexpr bool isPowerOf2(int v)
 {
   return v && ((v & (v - 1)) == 0);
@@ -64,8 +63,7 @@ private:
 };
 } // namespace aw::ecs
 
-namespace aw::ecs
-{
+namespace aw::ecs {
 template <typename Type, size_t pageSize>
 constexpr auto SparseSet<Type, pageSize>::mapping(Entity::Index index)
 {
@@ -135,10 +133,8 @@ void SparseSet<Type, pageSize>::erase(Entity e)
 
   auto index = (*mIndirectMapping[page])[offset];
   auto entry = mData.data() + index;
-  if (entry)
-  {
-    if (index != mDirectMapping.size() - 1)
-    {
+  if (entry) {
+    if (index != mDirectMapping.size() - 1) {
       auto [toPage, toOffset] = this->mapping(mDirectMapping.back().index());
       std::swap(*entry, mData.back());
 
@@ -150,9 +146,7 @@ void SparseSet<Type, pageSize>::erase(Entity e)
       // Do not reorder the two lines beneath or otherwise when removing the last element will not work correctly!
       (*mIndirectMapping[toPage])[toOffset] = index;
       (*mIndirectMapping[page])[offset] = Entity::invalidIndex;
-    }
-    else
-    {
+    } else {
       mData.pop_back();
       mDirectMapping.pop_back();
       (*mIndirectMapping[page])[offset] = Entity::invalidIndex;
@@ -163,10 +157,8 @@ void SparseSet<Type, pageSize>::erase(Entity e)
 template <typename Type, size_t pageSize>
 auto SparseSet<Type, pageSize>::assure(Entity::Index page) -> Page&
 {
-  if (page >= mIndirectMapping.size() || !mIndirectMapping[page])
-  {
-    if (page >= mIndirectMapping.size())
-    {
+  if (page >= mIndirectMapping.size() || !mIndirectMapping[page]) {
+    if (page >= mIndirectMapping.size()) {
       mIndirectMapping.resize(page + 1);
     }
     mIndirectMapping[page] = std::make_unique<Page>();

@@ -2,8 +2,7 @@
 
 #include <atomic>
 
-namespace aw::type
-{
+namespace aw::type {
 template <typename Category, typename CounterType = unsigned>
 class Counter
 {
