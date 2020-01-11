@@ -36,8 +36,6 @@ loadDependency(sfml https://github.com/sfml/sfml 2.5.1)
 set(GLM_TEST_ENABLE OFF)
 loadDependency(glm https://github.com/g-truc/glm 0.9.9.6)
 
-loadDependency(flecs https://github.com/SanderMertens/flecs v1.2)
-
 project(awEngine)
 
 add_library(${PROJECT_NAME})
@@ -51,11 +49,13 @@ find_package(OpenGL)
 target_sources(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include/aw/util/log.hpp)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_BINARY_DIR}/_deps/glm-src)
-target_link_libraries(${PROJECT_NAME} PUBLIC flecs_shared spdlog sfml-window sfml-system OpenGL::GL)
+target_link_libraries(${PROJECT_NAME} PUBLIC spdlog sfml-window sfml-system OpenGL::GL)
 
 if (AW_BUILD_TESTS)
   set(AW_TEST_SOURCES
     tests/main.cpp
+    tests/ecs/test_componentStorage.cpp
+    tests/ecs/test_view.cpp
     tests/ecs/test_world.cpp
   )
 
