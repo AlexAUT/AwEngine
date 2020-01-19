@@ -28,16 +28,21 @@ public:
     bool operator==(const Iterator& it) const { return (mEntityIterator == it.mEntityIterator); }
     bool operator!=(const Iterator& it) const { return (mEntityIterator != it.mEntityIterator); }
 
-    Iterator& operator++()
+    bool valid()
     {
       auto haveAll = [this](auto&... storages) {
         auto e = *mEntityIterator;
         return (storages.has(e) && ...);
       };
+      return std::apply(haveAll, mStorages);
+    }
+
+    Iterator& operator++()
+    {
       auto end = std::get<0>(mStorages).entityEnd();
       do {
         ++mEntityIterator;
-      } while (mEntityIterator != end && !std::apply(haveAll, mStorages));
+      } while (mEntityIterator != end && !valid());
 
       return (*this);
     }
@@ -87,15 +92,27 @@ public:
 public:
   View() = default;
   template <typename WorldT>
-  View(WorldT& world) : mStorages{world.template getStorage<Components>()...}
+  explicit View(WorldT& world) : mStorages{world.template getStorage<Components>()...}
   {}
 
-  auto begin() { return Iterator(std::get<0>(mStorages).entityBegin(), mStorages); }
+  View(const View&) = delete;
+  View(View&&) = delete;
+  View& operator=(const View&) = delete;
+  View& operator=(View&&) = delete;
+
+  auto begin()
+  {
+    auto beg = Iterator(std::get<0>(mStorages).entityBegin(), mStorages);
+    if (!beg.valid()) {
+      ++beg;
+    }
+    return beg;
+  }
   auto end() { return Iterator(std::get<0>(mStorages).entityEnd(), mStorages); }
 
 private:
 private:
   using Storages = std::tuple<ComponentStorage<Components>&...>;
   Storages mStorages;
-};
+}; // namespace aw::ecs
 } // namespace aw::ecs
