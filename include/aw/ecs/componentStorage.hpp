@@ -7,6 +7,8 @@ namespace aw::ecs {
 class ComponentStorageBase
 {
 public:
+  virtual ~ComponentStorageBase() = default;
+
   virtual void removeEntity(Entity e) = 0;
 };
 template <typename Component>

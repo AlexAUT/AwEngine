@@ -62,6 +62,11 @@ void World::update(aw::Seconds dt)
   systems(SystemType::OnUpdate).update(dt);
 }
 
+void World::render()
+{
+  systems(SystemType::OnRender).update(aw::Seconds{0.f});
+}
+
 SystemGroup& World::systems(SystemType type)
 {
   assert(type != SystemType::Count);

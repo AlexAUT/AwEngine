@@ -4,6 +4,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+
 include(FetchContent)
 
 function(loadDependency name url tag)
@@ -53,13 +54,13 @@ target_link_libraries(${PROJECT_NAME} PUBLIC spdlog sfml-window sfml-system Open
 
 if (AW_BUILD_TESTS)
   set(AW_TEST_SOURCES
-    tests/main.cpp
+    tests/test_runner.cpp
     tests/ecs/test_componentStorage.cpp
-    tests/ecs/test_systems.cpp
+    #tests/ecs/test_systems.cpp
     tests/ecs/test_view.cpp
     tests/ecs/test_world.cpp
   )
 
-  add_executable(awTests ${AW_TEST_SOURCES})
+add_executable(awTests EXCLUDE_FROM_ALL ${AW_TEST_SOURCES})
   target_link_libraries(awTests PRIVATE ${PROJECT_NAME})
 endif()

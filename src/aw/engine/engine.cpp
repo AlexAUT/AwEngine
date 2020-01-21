@@ -23,7 +23,7 @@ void Engine::run()
 
   aw::Clock frameClock;
   aw::Seconds frameTime{0.f};
-  const aw::Seconds updateRate{1.f / 2.f};
+  const aw::Seconds updateRate{1.f / 60.f};
 
   while (activeState && mWindow.open()) {
     mWindow.update();
@@ -48,6 +48,11 @@ void Engine::run()
 StateMachine& Engine::stateMachine()
 {
   return mStateMachine;
+}
+
+msg::Bus& Engine::messageBus()
+{
+  return mBus;
 }
 
 bool Engine::shouldTerminate() const

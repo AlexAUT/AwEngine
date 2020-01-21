@@ -13,6 +13,7 @@ public:
   void run();
 
   StateMachine& stateMachine();
+  msg::Bus& messageBus();
 
   bool shouldTerminate() const;
   void shouldTerminate(bool value);

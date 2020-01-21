@@ -21,6 +21,7 @@ public:
   enum class SystemType
   {
     OnUpdate,
+    OnRender,
     OnInsert,
     OnDelete,
     Count
@@ -53,10 +54,17 @@ public:
 
   SystemGroup& systems(SystemType);
 
-  template <typename... Components>
-  void registerSystem(SystemType, std::function<void(aw::Seconds, Entity, Components&...)>);
+  /* template <typename... Components> */
+  /* void registerSystem(SystemType, std::function<void(aw::Seconds, Entity, Components&...)>); */
+
+  /* template <typename... Components> */
+  /* void registerSystem(SystemType type, std::function<void(aw::Seconds, View<Components...>)> func); */
+
+  template <typename System>
+  void registerSystem(SystemType type, System& system);
 
   void update(aw::Seconds dt);
+  void render();
 
   template <typename Component>
   ComponentStorage<Component>& getStorage();
@@ -147,15 +155,34 @@ ComponentStorage<Component>& World::getStorage() const
   return *static_cast<ComponentStorage<Component>*>(mComponentStorages[index].get());
 }
 
-template <typename... Components>
-void World::registerSystem(SystemType type, std::function<void(aw::Seconds, Entity, Components&...)> callback)
+/* template <typename... Components> */
+/* void World::registerSystem(SystemType type, std::function<void(aw::Seconds, Entity, Components&...)> callback) */
+/* { */
+/*   systems(type).add([this, callback](aw::Seconds dt) { */
+/*     aw::ecs::View<Components...> view(*this); */
+/*     for (auto it : view) { */
+/*       std::apply(callback, std::tuple_cat(std::make_tuple(dt), it)); */
+/*     } */
+/*   }); */
+/* } */
+
+/* template <typename... Components> */
+/* void World::registerSystem(SystemType type, std::function<void(aw::Seconds, View<Components...>)> func) */
+/* { */
+/*   systems(type).add([this, func](aw::Seconds dt) { */
+/*     aw::ecs::View<Components...> view(*this); */
+/*     func(dt, view); */
+/*   }); */
+/* } */
+
+template <typename System>
+void World::registerSystem(SystemType type, System& system)
 {
-  systems(type).add([this, callback](aw::Seconds dt) {
-    aw::ecs::View<Components...> view(*this);
-    for (auto it : view) {
-      std::apply(callback, std::tuple_cat(std::make_tuple(dt), it));
-    }
-  });
+  systems(type).add(std::function([& world = *this, &system = system](aw::Seconds dt) {
+    using View = typename System::View;
+    View view{world};
+    system.update(dt, view);
+  }));
 }
 
 } // namespace aw::ecs

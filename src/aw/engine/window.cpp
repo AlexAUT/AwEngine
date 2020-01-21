@@ -12,6 +12,7 @@ Window::Window(const WindowSettings& settings, const msg::Bus& bus) : mBus{bus}
   cSettings.attributeFlags = sf::ContextSettings::Core | sf::ContextSettings::Debug;
   cSettings.majorVersion = 4;
   cSettings.minorVersion = 2;
+  cSettings.depthBits = 8;
 
   mWindow.create({settings.resolution.x, settings.resolution.y}, settings.title, sf::Style::Default, cSettings);
 }
