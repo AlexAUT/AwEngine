@@ -1,0 +1,1 @@
+Checks: '-*,bugprone-*,cppcoreguidelines-*,clang-analyzer-*,misc-*,modernize-*,performance-*,portability-*,readability-*,-readability-uppercase-literal-suffix,-cppcoreguidelines-pro-type-union-access,-modernize-use-nodiscard,-cppcoreguidelines-avoid-magic-numbers,-readability-magic-numbers,-cppcoreguidelines-pro-bounds-array-to-pointer-decay'
