@@ -15,6 +15,7 @@ Window::Window(const WindowSettings& settings, const msg::Bus& bus) : mBus{bus}
   cSettings.depthBits = 8;
 
   mWindow.create({settings.resolution.x, settings.resolution.y}, settings.title, sf::Style::Default, cSettings);
+  mWindow.setVerticalSyncEnabled(true);
 }
 
 void Window::close()

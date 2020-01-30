@@ -1,6 +1,5 @@
 #pragma once
 
-#include <aw/util/math/matrix.hpp>
 #include <aw/util/math/vector.hpp>
 
 #include <glm/common.hpp>
@@ -15,7 +14,7 @@ public:
   BBox() = default;
   explicit BBox(float size);
   explicit BBox(Vec3 size);
-  BBox(Vec3 origin, Vec3 size);
+  BBox(Vec3 min, Vec3 max) : mMin(min), mMax(max) {}
 
   auto size() const -> Vec3 { return mMax - mMin; }
   auto extend() const -> Vec3 { return size() * 0.5f; }

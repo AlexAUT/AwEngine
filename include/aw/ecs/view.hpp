@@ -17,18 +17,12 @@ public:
     Iterator(EntityIterator entityIterator, Storages& storages) : mEntityIterator{entityIterator}, mStorages{storages}
     {}
 
-    operator bool() const
-    {
-      if (mEntityIterator)
-        return true;
-      else
-        return false;
-    }
+    operator bool() const { return static_cast<bool>(mEntityIterator); }
 
-    bool operator==(const Iterator& it) const { return (mEntityIterator == it.mEntityIterator); }
-    bool operator!=(const Iterator& it) const { return (mEntityIterator != it.mEntityIterator); }
+    auto operator==(const Iterator& it) const -> bool { return (mEntityIterator == it.mEntityIterator); }
+    auto operator!=(const Iterator& it) const -> bool { return (mEntityIterator != it.mEntityIterator); }
 
-    bool valid()
+    auto valid() -> bool
     {
       auto haveAll = [this](auto&... storages) {
         auto e = *mEntityIterator;
@@ -37,7 +31,7 @@ public:
       return std::apply(haveAll, mStorages);
     }
 
-    Iterator& operator++()
+    auto operator++() -> Iterator&
     {
       auto end = std::get<0>(mStorages).entityEnd();
       do {
@@ -46,21 +40,10 @@ public:
 
       return (*this);
     }
-    Iterator& operator--()
-    {
-      --mEntityIterator;
-      return (*this);
-    }
-    Iterator operator++(int)
+    auto operator++(int) -> Iterator
     {
       auto temp(*this);
-      (*this)++;
-      return temp;
-    }
-    Iterator operator--(int)
-    {
-      auto temp(*this);
-      --mEntityIterator;
+      ++(*this);
       return temp;
     }
 
@@ -73,7 +56,7 @@ public:
           },
           mStorages);
     }
-    const auto operator*() const
+    auto operator*() const
     {
       return std::apply(
           [&](auto&... s) {
@@ -82,7 +65,7 @@ public:
           },
           mStorages);
     }
-    auto* operator-> () { return *this; }
+    auto operator-> () -> auto* { return *this; }
 
   private:
     EntityIterator mEntityIterator;
@@ -97,12 +80,16 @@ public:
 
   View(const View&) = delete;
   View(View&&) = delete;
-  View& operator=(const View&) = delete;
-  View& operator=(View&&) = delete;
+  auto operator=(const View&) -> View& = delete;
+  auto operator=(View &&) -> View& = delete;
 
   auto begin()
   {
-    auto beg = Iterator(std::get<0>(mStorages).entityBegin(), mStorages);
+    auto& storage = std::get<0>(mStorages);
+    if (storage.entityBegin() == storage.entityEnd()) {
+      return end();
+    }
+    auto beg = Iterator(storage.entityBegin(), mStorages);
     if (!beg.valid()) {
       ++beg;
     }

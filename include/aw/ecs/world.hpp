@@ -7,10 +7,12 @@
 #include <aw/ecs/systemGroup.hpp>
 #include <aw/ecs/view.hpp>
 #include <aw/util/time/time.hpp>
+#include <aw/util/type/staticFor.hpp>
 
 #include <array>
 #include <memory>
 #include <string_view>
+#include <tuple>
 #include <unordered_map>
 #include <vector>
 
@@ -29,36 +31,32 @@ public:
   constexpr static unsigned systemTypeCount = static_cast<unsigned>(SystemType::Count);
 
 public:
-  Entity createEntity();
+  auto createEntity() -> Entity;
   void destroyEntity(Entity e);
-  bool alive(Entity e) const;
-  std::size_t aliveEntities() const;
+  auto alive(Entity e) const -> bool;
+  auto aliveEntities() const -> std::size_t;
 
   template <typename Component>
   void registerComponent();
 
   template <typename Component>
-  bool registered() const;
+  auto registered() const -> bool;
 
   template <typename Component>
-  bool has(Entity e);
+  auto has(Entity e) -> bool;
 
   template <typename Component>
-  Component& get(Entity e);
+  auto get(Entity e) -> Component&;
 
   template <typename Component, typename... Args>
-  Component& set(Entity e, Args&&... args);
+  auto set(Entity e, Args&&... args) -> Component&;
 
   template <typename Component>
   void unset(Entity e);
 
-  SystemGroup& systems(SystemType);
+  auto systems(SystemType) -> SystemGroup&;
 
-  /* template <typename... Components> */
-  /* void registerSystem(SystemType, std::function<void(aw::Seconds, Entity, Components&...)>); */
-
-  /* template <typename... Components> */
-  /* void registerSystem(SystemType type, std::function<void(aw::Seconds, View<Components...>)> func); */
+  void registerSystem(SystemType type, std::function<void(aw::Seconds)> func);
 
   template <typename System>
   void registerSystem(SystemType type, System& system);
@@ -67,9 +65,9 @@ public:
   void render();
 
   template <typename Component>
-  ComponentStorage<Component>& getStorage();
+  auto getStorage() -> ComponentStorage<Component>&;
   template <typename Component>
-  ComponentStorage<Component>& getStorage() const;
+  auto getStorage() const -> ComponentStorage<Component>&;
 
 private:
 private:
@@ -91,7 +89,7 @@ private:
 
 namespace aw::ecs {
 template <typename Component>
-bool World::has(Entity e)
+auto World::has(Entity e) -> bool
 {
   assert(registered<Component>());
   assert(alive(e));
@@ -99,7 +97,7 @@ bool World::has(Entity e)
 }
 
 template <typename Component>
-Component& World::get(Entity e)
+auto World::get(Entity e) -> Component&
 {
   assert(registered<Component>());
   assert(alive(e));
@@ -108,7 +106,7 @@ Component& World::get(Entity e)
 }
 
 template <typename Component, typename... Args>
-Component& World::set(Entity e, Args&&... args)
+auto World::set(Entity e, Args&&... args) -> Component&
 {
   assert(registered<Component>());
   assert(alive(e));
@@ -134,13 +132,13 @@ void World::registerComponent()
 }
 
 template <typename Component>
-bool World::registered() const
+auto World::registered() const -> bool
 {
   return mComponentLookup.find(getComponentName<Component>()) != mComponentLookup.end();
 }
 
 template <typename Component>
-ComponentStorage<Component>& World::getStorage()
+auto World::getStorage() -> ComponentStorage<Component>&
 {
   assert(registered<Component>());
   auto index = mComponentLookup.find(getComponentName<Component>())->second;
@@ -148,7 +146,7 @@ ComponentStorage<Component>& World::getStorage()
 }
 
 template <typename Component>
-ComponentStorage<Component>& World::getStorage() const
+auto World::getStorage() const -> ComponentStorage<Component>&
 {
   assert(registered<Component>());
   auto index = mComponentLookup.find(getComponentName<Component>())->second;
@@ -178,11 +176,17 @@ ComponentStorage<Component>& World::getStorage() const
 template <typename System>
 void World::registerSystem(SystemType type, System& system)
 {
-  systems(type).add(std::function([& world = *this, &system = system](aw::Seconds dt) {
-    using View = typename System::View;
-    View view{world};
-    system.update(dt, view);
-  }));
+  using L = typename System::Views;
+
+  constexpr auto size = std::tuple_size_v<L>;
+  aw::staticFor<size>([& world = *this, &system = system, type](auto index) {
+    world.systems(type).add(std::function([& world = world, &system, index](aw::Seconds dt) {
+      using View = std::tuple_element_t<index, L>;
+      View view{world};
+      system.update(dt, view);
+    }));
+  });
+  // system(type).add(std::function([& world = *this, &system = system](aw::Seconds dt) { using View = View }));
 }
 
 } // namespace aw::ecs

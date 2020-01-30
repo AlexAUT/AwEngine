@@ -7,6 +7,8 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 include(FetchContent)
 
+include(cmake/color.cmake)
+
 function(loadDependency name url tag)
   FetchContent_Declare(
     ${name}
@@ -52,6 +54,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_LIST_DIR}/incl
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_BINARY_DIR}/_deps/glm-src)
 target_link_libraries(${PROJECT_NAME} PUBLIC spdlog sfml-window sfml-system OpenGL::GL)
 
+set(AW_BUILD_TESTS OFF CACHE BOOL "Santizer option to use")
 if (AW_BUILD_TESTS)
   set(AW_TEST_SOURCES
     tests/test_runner.cpp

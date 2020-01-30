@@ -19,6 +19,22 @@ struct Name
 };
 } // namespace testComponentIterator
 
+TEST_CASE("View without matching entities should return same begin as end")
+{
+  using namespace testComponentIterator;
+  aw::ecs::World w;
+  w.registerComponent<Position>();
+
+  aw::ecs::View<Position> view(w);
+  CHECK(view.begin() == view.end());
+
+  int count = 0;
+  for (auto _ : view) {
+    count++;
+  }
+  CHECK(count == 0);
+}
+
 TEST_CASE("Test component iteration")
 {
   using namespace testComponentIterator;
