@@ -176,17 +176,16 @@ auto World::getStorage() const -> ComponentStorage<Component>&
 template <typename System>
 void World::registerSystem(SystemType type, System& system)
 {
-  using L = typename System::Views;
+  using ViewList = typename System::Views;
 
-  constexpr auto size = std::tuple_size_v<L>;
-  aw::staticFor<size>([& world = *this, &system = system, type](auto index) {
+  constexpr auto viewCount = std::tuple_size_v<ViewList>;
+  aw::staticFor<viewCount>([& world = *this, &system = system, type](auto index) {
     world.systems(type).add(std::function([& world = world, &system, index](aw::Seconds dt) {
-      using View = std::tuple_element_t<index, L>;
+      using View = std::tuple_element_t<index, ViewList>;
       View view{world};
       system.update(dt, view);
     }));
   });
-  // system(type).add(std::function([& world = *this, &system = system](aw::Seconds dt) { using View = View }));
 }
 
 } // namespace aw::ecs

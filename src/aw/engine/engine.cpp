@@ -1,3 +1,4 @@
+#include "aw/engine/performance.hpp"
 #include <aw/engine/engine.hpp>
 
 #include <aw/engine/windowSettings.hpp>
@@ -25,16 +26,35 @@ void Engine::run()
   aw::Seconds frameTime{0.f};
   const aw::Seconds updateRate{1.f / 60.f};
 
-  while (activeState && mWindow.open()) {
-    mWindow.update();
+  aw::perf::Section frameSection("Engine::frameTime");
+  aw::perf::Section updateSection("Engine::update");
+  aw::perf::Section renderSection("Engine::render");
 
-    frameTime += frameClock.restart();
-    while (frameTime >= updateRate) {
-      activeState->update(updateRate);
-      frameTime -= updateRate;
+  while ((activeState != nullptr) && mWindow.open()) {
+    frameSection.start();
+
+    mWindow.update();
+    updateSection.start();
+
+    if (mPause) {
+      activeState->update(aw::Seconds::zero());
+      frameClock.restart();
+    } else {
+      frameTime += frameClock.restart();
+      while (frameTime >= updateRate) {
+        activeState->update(updateRate);
+        frameTime -= updateRate;
+      }
     }
 
+    updateSection.end();
+
+    renderSection.start();
     activeState->render();
+
+    renderSection.end();
+    frameSection.end();
+
     mWindow.display();
 
     mStateMachine.update();
@@ -63,5 +83,15 @@ bool Engine::shouldTerminate() const
 void Engine::shouldTerminate(bool value)
 {
   mShouldTerminate = value;
+}
+
+void Engine::pause(bool value)
+{
+  mPause = value;
+}
+
+bool Engine::pause() const
+{
+  return mPause;
 }
 } // namespace aw

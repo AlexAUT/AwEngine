@@ -39,6 +39,8 @@ loadDependency(sfml https://github.com/sfml/sfml 2.5.1)
 set(GLM_TEST_ENABLE OFF)
 loadDependency(glm https://github.com/g-truc/glm 0.9.9.6)
 
+loadDependency(freetype https://github.com/aseprite/freetype2 VER-2-10-0)
+
 project(awEngine)
 
 add_library(${PROJECT_NAME})
@@ -52,7 +54,7 @@ find_package(OpenGL)
 target_sources(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include/aw/util/log.hpp)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_BINARY_DIR}/_deps/glm-src)
-target_link_libraries(${PROJECT_NAME} PUBLIC spdlog sfml-window sfml-system OpenGL::GL)
+target_link_libraries(${PROJECT_NAME} PUBLIC spdlog sfml-window sfml-system OpenGL::GL freetype)
 
 set(AW_BUILD_TESTS OFF CACHE BOOL "Santizer option to use")
 if (AW_BUILD_TESTS)

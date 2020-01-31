@@ -18,6 +18,9 @@ public:
   bool shouldTerminate() const;
   void shouldTerminate(bool value);
 
+  void pause(bool value);
+  auto pause() const -> bool;
+
 private:
   msg::Bus mBus;
 
@@ -25,5 +28,7 @@ private:
   StateMachine mStateMachine;
 
   bool mShouldTerminate{false};
+
+  bool mPause{false};
 };
 } // namespace aw

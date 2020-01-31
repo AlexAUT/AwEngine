@@ -7,9 +7,12 @@
 #include <memory>
 
 namespace aw {
-template <typename ChildType, typename Intersector>
+template <typename ChildType>
 class Octree
 {
+public:
+  using ChildNodes = std::array<std::unique_ptr<Octree>, 8>;
+
 public:
   Octree(aw::BBox bBox, size_t maxElementsPerCell = 10, size_t maxDepth = 5);
 
@@ -17,13 +20,16 @@ public:
   auto operator=(Octree o) -> Octree&;
   Octree(Octree&& o) noexcept;
 
+  template <typename Intersector>
   void addElement(ChildType element, Intersector intersector);
 
   auto getBounds() const -> aw::BBox { return mBounds; }
 
+  template <typename Intersector>
   void traverseElements(const std::function<void(ChildType)>& callback, aw::BBox boundsToCheck,
                         Intersector intersector = Intersector());
-  void traverseNodes(const std::function<void(Octree<ChildType, Intersector>&)>& callback, aw::BBox boundsToCheck);
+
+  void traverseNodes(const std::function<void(Octree<ChildType>&)>& callback, aw::BBox boundsToCheck);
 
   inline friend void swap(Octree& first, Octree& second)
   {
@@ -37,7 +43,11 @@ public:
     swap(first.mChildNodes, second.mChildNodes);
   }
 
+  auto elements() const -> const std::vector<ChildType>& { return mElements; }
+  auto childNodes() const -> const ChildNodes& { return mChildNodes; }
+
 private:
+  template <typename Intersector>
   void split(Intersector intersector);
 
 private:
@@ -48,41 +58,43 @@ private:
   std::vector<ChildType> mElements;
 
   bool mSplit{false};
-  std::array<std::unique_ptr<Octree>, 8> mChildNodes{nullptr};
+  ChildNodes mChildNodes{nullptr};
 };
 } // namespace aw
 
 namespace aw {
-template <typename ChildType, typename Intersector>
-Octree<ChildType, Intersector>::Octree(aw::BBox bBox, size_t maxElementsPerCell, size_t maxDepth) :
+template <typename ChildType>
+Octree<ChildType>::Octree(aw::BBox bBox, size_t maxElementsPerCell, size_t maxDepth) :
     mBounds(bBox), mMaxElements(maxElementsPerCell), mMaxDepth(maxDepth)
 {}
 
-template <typename ChildType, typename Intersector>
-Octree<ChildType, Intersector>::Octree(const Octree& o) :
-    mBounds{o.mBounds},
-    mMaxElements{o.mMaxElements},
-    mMaxDepth{o.mMaxDepth},
-    mElements{o.mElements},
-    mSplit{o.mSplit},
-    mChildNodes{o.mChildNodes}
-{}
+template <typename ChildType>
+Octree<ChildType>::Octree(const Octree& o) :
+    mBounds{o.mBounds}, mMaxElements{o.mMaxElements}, mMaxDepth{o.mMaxDepth}, mElements{o.mElements}, mSplit{o.mSplit}
+{
+  for (int i = 0; i < mChildNodes.size(); i++) {
+    if (o.mChildNodes[i]) {
+      mChildNodes[i] = std::make_unique<Octree>(*o.mChildNodes[i]);
+    }
+  }
+}
 
-template <typename ChildType, typename Intersector>
-auto Octree<ChildType, Intersector>::operator=(Octree o) -> Octree&
+template <typename ChildType>
+auto Octree<ChildType>::operator=(Octree o) -> Octree&
 {
   swap(*this, o);
   return *this;
 }
 
-template <typename ChildType, typename Intersector>
-Octree<ChildType, Intersector>::Octree(Octree&& o) noexcept : Octree(aw::BBox{})
+template <typename ChildType>
+Octree<ChildType>::Octree(Octree&& o) noexcept : Octree(aw::BBox{})
 {
   swap(*this, o);
 }
 
-template <typename ChildType, typename Intersector>
-void Octree<ChildType, Intersector>::addElement(ChildType element, Intersector intersector)
+template <typename ChildType>
+template <typename Intersector>
+void Octree<ChildType>::addElement(ChildType element, Intersector intersector)
 {
   assert(intersector(mBounds, element));
 
@@ -110,8 +122,9 @@ void Octree<ChildType, Intersector>::addElement(ChildType element, Intersector i
   }
 }
 
-template <typename ChildType, typename Intersector>
-void Octree<ChildType, Intersector>::split(Intersector intersector)
+template <typename ChildType>
+template <typename Intersector>
+void Octree<ChildType>::split(Intersector intersector)
 {
   auto center = mBounds.center();
   auto extend = mBounds.extend();
@@ -123,9 +136,9 @@ void Octree<ChildType, Intersector>::split(Intersector intersector)
         Vec3 offset{static_cast<float>(x) - 0.5f, static_cast<float>(y) - 0.5f, static_cast<float>(z) - 0.5f};
         Vec3 childCenter = center + extend * offset;
         Vec3 childExtend = extend * 0.5f;
-        aw::BBox childBounds{childCenter, childExtend};
+        aw::BBox childBounds{childCenter - childExtend, childCenter + childExtend};
 
-        mChildNodes[index] = std::make_unique<Octree<ChildType, Intersector>>(childBounds, mMaxElements, mMaxDepth - 1);
+        mChildNodes[index] = std::make_unique<Octree<ChildType>>(childBounds, mMaxElements, mMaxDepth - 1);
       }
     }
   }
@@ -138,9 +151,10 @@ void Octree<ChildType, Intersector>::split(Intersector intersector)
   std::vector<ChildType>().swap(mElements);
 }
 
-template <typename ChildType, typename Intersector>
-void Octree<ChildType, Intersector>::traverseElements(const std::function<void(ChildType)>& callback,
-                                                      aw::BBox boundsToCheck, Intersector intersector)
+template <typename ChildType>
+template <typename Intersector>
+void Octree<ChildType>::traverseElements(const std::function<void(ChildType)>& callback, aw::BBox boundsToCheck,
+                                         Intersector intersector)
 {
   if (!BBoxBBoxIntersector()(mBounds, boundsToCheck)) {
     return;
@@ -158,9 +172,8 @@ void Octree<ChildType, Intersector>::traverseElements(const std::function<void(C
     }
   }
 }
-template <typename ChildType, typename Intersector>
-void Octree<ChildType, Intersector>::traverseNodes(const std::function<void(Octree<ChildType, Intersector>&)>& callback,
-                                                   aw::BBox boundsToCheck)
+template <typename ChildType>
+void Octree<ChildType>::traverseNodes(const std::function<void(Octree<ChildType>&)>& callback, aw::BBox boundsToCheck)
 {
   if (!BBoxBBoxIntersector()(mBounds, boundsToCheck)) {
     return;

@@ -7,9 +7,11 @@ namespace aw {
 class Clock
 {
 public:
-  GameClock::duration restart();
+  using duration = GameClock::duration;
 
-  GameClock::duration getElapsedTime() const;
+public:
+  auto restart() -> GameClock::duration;
+  auto getElapsedTime() const -> GameClock::duration;
 
 private:
   GameClock::time_point mStartPoint{GameClock::now()};
