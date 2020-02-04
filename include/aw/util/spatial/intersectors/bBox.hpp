@@ -1,6 +1,8 @@
 #pragma once
 
+#include "aw/util/log.hpp"
 #include "aw/util/spatial/bBox.hpp"
+#include "aw/util/spatial/plane.hpp"
 
 #include <glm/gtx/extended_min_max.hpp>
 
@@ -22,6 +24,33 @@ struct BBoxBBoxIntersector
   {
     return (a.min().x <= b.max().x && a.max().x >= b.min().x) && (a.min().y <= b.max().y && a.max().y >= b.min().y) &&
            (a.min().z <= b.max().z && a.max().z >= b.min().z);
+  }
+};
+
+struct BBoxPlaneIntersector
+{
+  enum class Result
+  {
+    Intersecting,
+    Positive, // The whole bbox lies in front of the plane
+    Negative  // The whole bbox lies behind the plane
+  };
+
+  Result operator()(BBox box, Plane plane)
+  {
+    auto center = box.center();
+    auto ext = box.extend();
+
+    auto r = glm::dot(ext, glm::abs(plane.n));
+    float s = glm::dot(plane.n, center) - plane.w;
+
+    if (s > r) {
+      return Result::Positive;
+    }
+    if (s < r) {
+      return Result::Negative;
+    }
+    return Result::Intersecting;
   }
 };
 

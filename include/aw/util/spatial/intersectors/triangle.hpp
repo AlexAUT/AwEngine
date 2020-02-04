@@ -2,7 +2,8 @@
 #include "aw/util/math/vector.hpp"
 #include "glm/geometric.hpp"
 
-constexpr float epsilion = 0.00001;
+constexpr float epsilion = 0.000001f;
+constexpr bool useEpsilonTest = true;
 
 namespace aw {
 
@@ -22,17 +23,17 @@ struct TriTriIntersector
     auto du2 = glm::dot(n1, u2) + d1;
 
     /* coplanarity robustness check */
-#if USE_EPSILON_TEST == TRUE
-    if (glm::abs(du0) < epsilion) {
-      du0 = 0.0;
+    if constexpr (useEpsilonTest) {
+      if (glm::abs(du0) < epsilion) {
+        du0 = 0.0;
+      }
+      if (glm::abs(du1) < epsilion) {
+        du1 = 0.0;
+      }
+      if (glm::abs(du2) < epsilion) {
+        du2 = 0.0;
+      }
     }
-    if (glm::abs(du1) < epsilion) {
-      du1 = 0.0;
-    }
-    if (glm::abs(du2) < epsilion) {
-      du2 = 0.0;
-    }
-#endif
     auto du0du1 = du0 * du1;
     auto du0du2 = du0 * du2;
 
@@ -50,17 +51,17 @@ struct TriTriIntersector
     auto dv1 = glm::dot(n2, v1) + d2;
     auto dv2 = glm::dot(n2, v2) + d2;
 
-#if USE_EPSILON_TEST == TRUE
-    if (glm::abs(dv0) < epsilion) {
-      dv0 = 0.0;
+    if constexpr (useEpsilonTest) {
+      if (glm::abs(dv0) < epsilion) {
+        dv0 = 0.0;
+      }
+      if (glm::abs(dv1) < epsilion) {
+        dv1 = 0.0;
+      }
+      if (glm::abs(dv2) < epsilion) {
+        dv2 = 0.0;
+      }
     }
-    if (glm::abs(dv1) < epsilion) {
-      dv1 = 0.0;
-    }
-    if (glm::abs(dv2) < epsilion) {
-      dv2 = 0.0;
-    }
-#endif
 
     auto dv0dv1 = dv0 * dv1;
     auto dv0dv2 = dv0 * dv2;
@@ -68,6 +69,7 @@ struct TriTriIntersector
     if (dv0dv1 > 0.0f && dv0dv2 > 0.0f) { /* same sign on all of them + not equal 0 ? */
       return false;                       /* no intersection occurs */
     }
+    return true;
 
     /* compute direction of intersection line */
     auto D = glm::cross(n1, n2);

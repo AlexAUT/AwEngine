@@ -48,3 +48,22 @@ struct fmt::formatter<aw::Vec3>
     return format_to(ctx.out(), "Vec3({}, {}, {})", v.x, v.y, v.z);
   }
 };
+
+template <>
+struct fmt::formatter<aw::Vec4>
+{
+  // Parses format specifications of the form ['f' | 'e'].
+  static constexpr auto parse(format_parse_context& ctx)
+  {
+    auto it = ctx.begin();
+    return it;
+  }
+  // Formats the point p using the parsed format specification (presentation)
+  // stored in this formatter.
+  template <typename FormatContext>
+  auto format(const aw::Vec4& v, FormatContext& ctx)
+  {
+    // ctx.out() is an output iterator to write to.
+    return format_to(ctx.out(), "Vec4({}, {}, {} {})", v.x, v.y, v.z, v.w);
+  }
+};

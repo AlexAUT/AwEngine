@@ -15,6 +15,7 @@
  *
  */
 
+#include "aw/util/log.hpp"
 #include <math.h>
 #define FABS(x) (float(fabs(x))) /* implement as is fastest on your machine */
 
@@ -244,6 +245,8 @@ inline int NoDivTriTriIsect(float V0[3], float V1[3], float V2[3], float U0[3], 
   dv1 = DOT(N2, V1) + d2;
   dv2 = DOT(N2, V2) + d2;
 
+  aw::log::info("DV0 {}", dv0);
+
 #if USE_EPSILON_TEST == TRUE
   if (FABS(dv0) < EPSILON)
     dv0 = 0.0;
@@ -256,9 +259,13 @@ inline int NoDivTriTriIsect(float V0[3], float V1[3], float V2[3], float U0[3], 
   dv0dv1 = dv0 * dv1;
   dv0dv2 = dv0 * dv2;
 
+  aw::log::info("{} {} = {}", dv0, dv1, dv0dv1);
+  aw::log::info("DV: {} {}", dv0dv1, dv0dv2);
+
   if (dv0dv1 > 0.0f && dv0dv2 > 0.0f) { /* same sign on all of them + not equal 0 ? */
     return 0;                           /* no intersection occurs */
   }
+  return true;
 
   /* compute direction of intersection line */
   CROSS(D, N1, N2);

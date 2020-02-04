@@ -23,7 +23,7 @@ public:
   template <typename Intersector>
   void addElement(ChildType element, Intersector intersector);
 
-  auto getBounds() const -> aw::BBox { return mBounds; }
+  auto bounds() const -> aw::BBox { return mBounds; }
 
   template <typename Intersector>
   void traverseElements(const std::function<void(ChildType)>& callback, aw::BBox boundsToCheck,

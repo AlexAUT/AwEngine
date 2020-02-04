@@ -5,10 +5,10 @@
 
 namespace aw::ecs {
 template <typename T>
-std::string_view getComponentName();
+auto getComponentName() -> std::string_view;
 
 template <typename T>
-std::string_view getComponentName()
+auto getComponentName() -> std::string_view
 {
   return typeid(T).name();
 }
