@@ -3,7 +3,7 @@
 #include "aw/util/log.hpp"
 #include "aw/util/spatial/bBox.hpp"
 #include "aw/util/spatial/plane.hpp"
-
+#include "aw/util/spatial/sphere.hpp"
 #include <glm/gtx/extended_min_max.hpp>
 
 namespace aw {
@@ -51,6 +51,23 @@ struct BBoxPlaneIntersector
       return Result::Negative;
     }
     return Result::Intersecting;
+  }
+};
+
+struct BBoxSphereIntersector
+{
+  auto operator()(BBox box, Sphere sphere) -> bool
+  {
+    float dmin = 0.f;
+    for (int i = 0; i < 3; i++) {
+      if (sphere.center[i] < box.min()[i]) {
+        dmin += glm::pow(sphere.center[i] - box.min()[i], 2);
+      } else if (sphere.center[i] > box.max()[i]) {
+        dmin += glm::pow(sphere.center[i] - box.max()[i], 2);
+      }
+    }
+
+    return dmin <= sphere.radius * sphere.radius;
   }
 };
 

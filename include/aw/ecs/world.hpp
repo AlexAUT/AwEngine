@@ -1,5 +1,9 @@
 #pragma once
 
+#include <string_view>
+#include <type_traits>
+#include <unordered_map>
+
 #include <aw/ecs/componentStorage.hpp>
 #include <aw/ecs/entity.hpp>
 #include <aw/ecs/nameResolver.hpp>
@@ -11,9 +15,7 @@
 
 #include <array>
 #include <memory>
-#include <string_view>
 #include <tuple>
-#include <unordered_map>
 #include <vector>
 
 namespace aw::ecs {
@@ -47,6 +49,9 @@ public:
 
   template <typename Component>
   auto get(Entity e) -> Component&;
+
+  template <typename Component>
+  auto set(Entity e, Component&& component);
 
   template <typename Component, typename... Args>
   auto set(Entity e, Args&&... args) -> Component&;
@@ -103,6 +108,14 @@ auto World::get(Entity e) -> Component&
   assert(alive(e));
   assert(has<Component>(e));
   return *getStorage<Component>().get(e);
+}
+
+template <typename Component>
+auto World::set(Entity e, Component&& component)
+{
+  assert(registered<Component>());
+  assert(alive(e));
+  return getStorage<std::decay_t<Component>>().emplace(e, component);
 }
 
 template <typename Component, typename... Args>
