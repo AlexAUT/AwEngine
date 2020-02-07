@@ -1,16 +1,47 @@
 #pragma once
 
+#include "aw/util/type/staticFor.hpp"
 #include <aw/ecs/componentStorage.hpp>
 
 namespace aw::ecs {
+template <typename Component>
+struct Optional
+{
+  using value_type = Component;
+};
+template <typename T>
+struct isOptional : std::false_type
+{};
+template <typename T>
+struct isOptional<Optional<T>> : std::true_type
+{};
+template <typename T>
+inline constexpr bool isOptional_v = std::is_base_of_v<std::true_type, isOptional<T>>;
+
+template <typename T>
+struct removeOptional
+{
+  using type = T;
+};
+template <typename T>
+struct removeOptional<Optional<T>>
+{
+  using type = T;
+};
+template <typename T>
+using removeOptional_t = typename removeOptional<T>::type;
+
 template <typename... Components>
 class View
 {
 public:
+  using Storages = std::tuple<ComponentStorage<removeOptional_t<Components>>&...>;
+
+public:
   class Iterator
   {
   public:
-    using Storages = std::tuple<ComponentStorage<Components>&...>;
+    using TupleComponents = std::tuple<Components...>;
     using EntityIterator = typename ComponentStorage<std::decay_t<std::tuple_element_t<0, Storages>>>::EntityIterator;
 
   public:
@@ -24,11 +55,16 @@ public:
 
     auto valid() -> bool
     {
-      auto haveAll = [this](auto&... storages) {
+      bool haveAll = true;
+      aw::staticFor<sizeof...(Components)>([this, &haveAll](auto i) {
+        if (isOptional_v<std::tuple_element_t<i, TupleComponents>> || !haveAll) {
+          return;
+        }
         auto e = *mEntityIterator;
-        return (storages.has(e) && ...);
-      };
-      return std::apply(haveAll, mStorages);
+        auto& storage = std::get<i>(mStorages);
+        haveAll = storage.has(e);
+      });
+      return haveAll;
     }
 
     auto operator++() -> Iterator&
@@ -47,24 +83,43 @@ public:
       return temp;
     }
 
+    template <size_t... Is>
+    auto getAll(std::index_sequence<Is...>)
+    {
+      auto e = *mEntityIterator;
+      auto get = [this, e](auto i) {
+        if constexpr (isOptional_v<std::tuple_element_t<i, TupleComponents>>) {
+          auto& s = std::get<i>(mStorages);
+          return std::tuple(s.get(e));
+        } else {
+          auto& s = std::get<i>(mStorages);
+          return std::tie(*s.get(e));
+        }
+      };
+
+      return std::tuple_cat(std::make_tuple(e), get(std::integral_constant<std::size_t, Is>{})...);
+      //(f(std::integral_constant<std::size_t, Is>{}), ...);
+      /* return std::apply( */
+      /*     [&](auto&... s) { */
+      /*       auto e = *mEntityIterator; */
+      /*       return std::make_tuple(e, get(s, Is)...); */
+      /*     }, */
+      /*     mStorages); */
+    }
+
     auto operator*()
     {
-      return std::apply(
-          [&](auto&... s) {
-            auto e = *mEntityIterator;
-            return std::tuple_cat(std::make_tuple(e), std::tie(*s.get(e)...));
-          },
-          mStorages);
+      using seq = std::make_integer_sequence<std::size_t, sizeof...(Components)>;
+      return getAll(seq{});
+
+      /* return std::apply( */
+      /*     [&](auto&... s) { */
+      /*       auto e = *mEntityIterator; */
+      /*       return std::make_tuple(e, s.get(e)...); */
+      /*     }, */
+      /*     mStorages); */
     }
-    auto operator*() const
-    {
-      return std::apply(
-          [&](auto&... s) {
-            auto e = *mEntityIterator;
-            return std::tuple_cat(std::make_tuple(e), std::tie(*s.get(e)...));
-          },
-          mStorages);
-    }
+
     auto operator-> () -> auto* { return *this; }
 
   private:
@@ -75,7 +130,7 @@ public:
 public:
   View() = default;
   template <typename WorldT>
-  explicit View(WorldT& world) : mStorages{world.template getStorage<Components>()...}
+  explicit View(WorldT& world) : mStorages{world.template getStorage<removeOptional_t<Components>>()...}
   {}
 
   View(const View&) = delete;
@@ -99,7 +154,6 @@ public:
 
 private:
 private:
-  using Storages = std::tuple<ComponentStorage<Components>&...>;
   Storages mStorages;
 }; // namespace aw::ecs
 } // namespace aw::ecs
