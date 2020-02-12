@@ -8,7 +8,7 @@ namespace aw {
 class Engine
 {
 public:
-  Engine(int argc, const char** argv);
+  Engine(int argc, char** argv);
 
   void run();
 
@@ -22,6 +22,8 @@ public:
   auto pause() const -> bool;
 
 private:
+  bool mLoggerInitialized;
+
   msg::Bus mBus;
 
   Window mWindow;

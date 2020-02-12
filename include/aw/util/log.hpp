@@ -3,6 +3,11 @@
 #include <spdlog/spdlog.h>
 
 namespace aw::log {
+
+namespace priv {
+bool init();
+}
+
 template <typename... Args>
 void debug(const char* format, Args&&... args)
 {

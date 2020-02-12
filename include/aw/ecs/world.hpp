@@ -1,9 +1,5 @@
 #pragma once
 
-#include <string_view>
-#include <type_traits>
-#include <unordered_map>
-
 #include <aw/ecs/componentStorage.hpp>
 #include <aw/ecs/entity.hpp>
 #include <aw/ecs/nameResolver.hpp>
@@ -15,7 +11,10 @@
 
 #include <array>
 #include <memory>
+#include <string_view>
 #include <tuple>
+#include <type_traits>
+#include <unordered_map>
 #include <vector>
 
 namespace aw::ecs {
@@ -190,6 +189,8 @@ template <typename System>
 void World::registerSystem(SystemType type, System& system)
 {
   using ViewList = typename System::Views;
+
+  System::registerComponents(*this);
 
   constexpr auto viewCount = std::tuple_size_v<ViewList>;
   aw::staticFor<viewCount>([& world = *this, &system = system, type](auto index) {

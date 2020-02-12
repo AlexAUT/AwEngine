@@ -14,7 +14,7 @@ BreakConstructorInitializers: AfterColon
 SortIncludes: true
 IncludeBlocks: Regroup
 IncludeCategories:
-  - Regex:           '^"(aw|glm|spdlog)/'
+  - Regex:           '^"((aw|glm|spdlog)/|(SDL_)'
     Priority:        3
   - Regex:           '<(aw|glm|spdlog)/'
     Priority:        3

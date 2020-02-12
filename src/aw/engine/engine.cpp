@@ -1,17 +1,22 @@
+#include "SDL_events.h"
 #include "aw/engine/performance.hpp"
-#include <aw/engine/engine.hpp>
 
+#include <aw/engine/engine.hpp>
 #include <aw/engine/windowSettings.hpp>
 #include <aw/util/log.hpp>
 #include <aw/util/time/clock.hpp>
 
-#include <SFML/Window/Event.hpp>
-
 namespace aw {
-Engine::Engine(int argc, const char** argv) : mWindow{WindowSettings{"AwEngine", aw::Vec2u{1280, 720}}, mBus}
+Engine::Engine(int argc, char** argv) :
+    mLoggerInitialized{aw::log::priv::init()},
+    // Be careful to not remove the log init call as first thing this constructor does
+    mWindow{WindowSettings{"AwEngine", aw::Vec2u{1280, 720}}, mBus}
 {
-  auto temp = mBus.channel<sf::Event>().subscribeUnsafe([this](auto& e) {
-    if (e.type == sf::Event::Closed) {
+  auto temp = mBus.channel<SDL_Event>().subscribeUnsafe([this](SDL_Event e) {
+    if (e.type == SDL_WINDOWEVENT && e.window.type == SDL_WINDOWEVENT_CLOSE) {
+      shouldTerminate(true);
+    }
+    if (e.type == SDL_QUIT) {
       shouldTerminate(true);
     }
   });

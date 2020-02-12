@@ -1,6 +1,6 @@
 #pragma once
 
-#include <SFML/Window/Window.hpp>
+#include "SDL_video.h"
 
 namespace aw {
 struct WindowSettings;
@@ -13,6 +13,7 @@ class Window
 {
 public:
   explicit Window(const WindowSettings& settings, const msg::Bus& messageBus);
+  ~Window();
 
   void close();
 
@@ -23,7 +24,8 @@ public:
 
 private:
 private:
-  sf::Window mWindow;
+  SDL_Window* mWindow;
+  SDL_GLContext mContext;
   const msg::Bus& mBus;
 };
 } // namespace aw
