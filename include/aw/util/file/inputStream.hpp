@@ -30,12 +30,15 @@ private:
 class InputStream : public std::istream
 {
 public:
-  explicit InputStream(const char* path);
+  explicit InputStream(std::string filePath);
 
   auto isOpen() const -> bool { return mBuffer != nullptr; }
 
+  auto path() const -> const std::string& { return mPath; }
+
 private:
 private:
+  std::string mPath;
   std::unique_ptr<SDLStreamBuffer> mBuffer;
 };
 } // namespace aw::file

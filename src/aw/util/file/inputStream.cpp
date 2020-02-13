@@ -3,7 +3,8 @@
 #include <aw/util/file/inputStream.hpp>
 
 namespace aw::file {
-InputStream::InputStream(const char* path) : std::istream(nullptr), mBuffer(std::make_unique<SDLStreamBuffer>(path))
+InputStream::InputStream(std::string fileName) :
+    std::istream(nullptr), mPath(std::move(fileName)), mBuffer(std::make_unique<SDLStreamBuffer>(mPath.c_str()))
 {
   // Handle android asset file differently because they are zipped inside the apk
   if (mBuffer && mBuffer->isOpen()) {
