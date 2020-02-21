@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 project(awEngine)
-add_library(${PROJECT_NAME})
+add_library(${PROJECT_NAME} SHARED)
 
 include(FetchContent)
 
@@ -19,7 +19,7 @@ set(SPDLOG_BUILD_TESTS OFF)
 set(SPDLOG_BUILD_EXAMPLE OFF)
 loadDependencyFromGit(spdlog https://github.com/gabime/spdlog v1.4.2)
 
-set(GLM_TEST_ENABLE OFF)
+set(GLM_TEST_ENABLE OFF CACHE BOOL "Disable test")
 loadDependencyFromGit(glm https://github.com/g-truc/glm 0.9.9.6)
 set(GLM_TEST_ENABLE OFF)
 
