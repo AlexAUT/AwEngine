@@ -1,5 +1,6 @@
 #pragma once
 
+#include "aw/config.hpp"
 #include "aw/util/time/clock.hpp"
 #include "aw/util/time/gameClock.hpp"
 #include "aw/util/time/time.hpp"
@@ -8,7 +9,7 @@
 #include <string>
 
 namespace aw::perf {
-class Section
+class AW_API_EXPORT Section
 {
 public:
   Section(std::string title);

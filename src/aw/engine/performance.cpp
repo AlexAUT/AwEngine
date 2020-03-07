@@ -1,7 +1,7 @@
-#include <aw/engine/performance.hpp>
-
 #include "aw/util/log.hpp"
 #include "aw/util/time/time.hpp"
+
+#include <aw/engine/performance.hpp>
 
 namespace aw::perf {
 Section::Section(std::string title) : mTitle{std::move(title)} {}
@@ -26,13 +26,13 @@ void Section::end()
 void Section::print()
 {
   if (mSampleCount > 0) {
-    aw::log::info("Perf section {}: avg: {}s", mTitle,
-                  (std::chrono::duration_cast<aw::Seconds>(mSampleSum).count() / mSampleCount));
+    APP_INFO("Perf section {}: avg: {}s", mTitle,
+             (std::chrono::duration_cast<aw::Seconds>(mSampleSum).count() / mSampleCount));
   }
 }
 
 void Section::printLast()
 {
-  aw::log::info("Perf section {}: last: {}s", mTitle, std::chrono::duration_cast<aw::Seconds>(mLast).count());
+  APP_INFO("Perf section {}: last: {}s", mTitle, std::chrono::duration_cast<aw::Seconds>(mLast).count());
 }
 } // namespace aw::perf

@@ -1,12 +1,12 @@
-#include <aw/util/file/convert.hpp>
+#include "aw/util/filesystem/convert.hpp"
 
-namespace aw::file {
-std::string toString(std::istream& stream, size_t chunkSize)
+namespace aw {
+auto toString(std::istream& stream, size_t chunkSize) -> std::string
 {
   std::string stringBuffer;
   stringBuffer.resize(chunkSize);
   size_t cursor = 0;
-  while (stream.read(const_cast<char*>(stringBuffer.data() + cursor), chunkSize)) {
+  while (stream.read(reinterpret_cast<char*>(stringBuffer.data() + cursor), chunkSize)) {
     cursor += chunkSize;
     stringBuffer.resize(cursor + chunkSize);
   }
@@ -15,7 +15,7 @@ std::string toString(std::istream& stream, size_t chunkSize)
   return stringBuffer;
 }
 
-std::vector<uint8_t> toUint8(std::istream& stream, size_t chunkSize)
+auto toUint8(std::istream& stream, size_t chunkSize) -> std::vector<uint8_t>
 {
   std::vector<uint8_t> buffer(chunkSize);
   size_t cursor = 0;
@@ -27,4 +27,4 @@ std::vector<uint8_t> toUint8(std::istream& stream, size_t chunkSize)
 
   return buffer;
 }
-} // namespace aw::file
+} // namespace aw

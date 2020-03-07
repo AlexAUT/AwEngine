@@ -9,7 +9,7 @@ namespace aw::msg {
 class ChannelBase
 {
 public:
-  virtual ~ChannelBase() {}
+  virtual ~ChannelBase() = default;
 };
 
 template <typename EventType>
@@ -27,9 +27,9 @@ public:
   ~Subscription();
 
   Subscription(const Subscription&) = delete;
-  Subscription& operator=(const Subscription) = delete;
-  Subscription(Subscription && o);
-  Subscription& operator=(Subscription&& o);
+  auto operator=(const Subscription)->Subscription& = delete;
+  Subscription(Subscription && o) noexcept;
+  auto operator=(Subscription&& o) noexcept->Subscription&;
 
   void unsubscribe();
 
@@ -43,16 +43,16 @@ template <typename EventType>
 class Channel : public ChannelBase
 {
 public:
-  using Callback = std::function<void(const EventType&)>;
+  using Callback = std::function<bool(const EventType&)>;
   using SubscriptionId = unsigned;
   constexpr static SubscriptionId npos = std::numeric_limits<unsigned>::max();
 
 public:
-  void broadcast(const EventType& event) const;
+  auto broadcast(const EventType& event) const -> bool;
 
-  Subscription<EventType> subscribe(Callback callback);
-  [[nodiscard]] SubscriptionId subscribeUnsafe(Callback callback);
-  bool unsubscribe(SubscriptionId id);
+  auto subscribe(Callback callback) -> Subscription<EventType>;
+  [[nodiscard]] auto subscribeUnsafe(Callback callback) -> SubscriptionId;
+  auto unsubscribe(SubscriptionId id) -> bool;
 
 private:
 private:
@@ -76,16 +76,17 @@ Subscription<EventType>::~Subscription()
 }
 
 template <typename EventType>
-Subscription<EventType>::Subscription(Subscription&& o) : mChannel(o.mChannel), mSubscriptionId(o.mSubscriptionId)
+Subscription<EventType>::Subscription(Subscription&& o) noexcept :
+    mChannel(o.mChannel), mSubscriptionId(o.mSubscriptionId)
 {
   o.mSubscriptionId = Channel<EventType>::npos;
 }
 template <typename EventType>
-Subscription<EventType>& Subscription<EventType>::operator=(Subscription<EventType>&& o)
+auto Subscription<EventType>::operator=(Subscription<EventType>&& o) noexcept -> Subscription<EventType>&
 {
   mSubscriptionId = o.mSubscriptionId;
   o.mSubscriptionId = Channel<EventType>::npos;
-  return Subscription(o);
+  return *this;
 }
 
 template <typename EventType>
@@ -97,14 +98,18 @@ void Subscription<EventType>::unsubscribe()
 }
 
 template <typename EventType>
-void Channel<EventType>::broadcast(const EventType& event) const
+auto Channel<EventType>::broadcast(const EventType& event) const -> bool
 {
-  for (auto& sub : mSubscribers)
-    sub(event);
+  for (auto& sub : mSubscribers) {
+    if (sub(event)) {
+      return true;
+    }
+  }
+  return false;
 }
 
 template <typename EventType>
-Subscription<EventType> Channel<EventType>::subscribe(Callback callback)
+auto Channel<EventType>::subscribe(Callback callback) -> Subscription<EventType>
 {
   return {*this, subscribeUnsafe(std::move(callback))};
 }
@@ -120,7 +125,7 @@ auto Channel<EventType>::subscribeUnsafe(Callback callback) -> SubscriptionId
 }
 
 template <typename EventType>
-bool Channel<EventType>::unsubscribe(SubscriptionId id)
+auto Channel<EventType>::unsubscribe(SubscriptionId id) -> bool
 {
   for (unsigned i = 0; i < mIdMappings.size(); i++) {
     if (mIdMappings[i] == id) {

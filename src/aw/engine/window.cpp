@@ -5,13 +5,13 @@
 
 #include <aw/engine/window.hpp>
 #include <aw/engine/windowSettings.hpp>
-#include <aw/util/message/bus.hpp>
+#include <aw/util/messageBus/messageBus.hpp>
 
 namespace aw {
 Window::Window(const WindowSettings& settings, const msg::Bus& bus) : mBus{bus}
 {
   if (SDL_Init(SDL_INIT_EVENTS | SDL_INIT_VIDEO) < 0) {
-    aw::log::error("sdl init error: {}", SDL_GetError());
+    APP_ERROR("sdl init error: {}", SDL_GetError());
     return;
   }
 
@@ -36,7 +36,7 @@ Window::Window(const WindowSettings& settings, const msg::Bus& bus) : mBus{bus}
   SDL_GL_GetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, &major);
   int minor{0};
   SDL_GL_GetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, &major);
-  aw::log::info("OpenGL Version: {}.{}", major, minor);
+  APP_INFO("OpenGL Version: {}.{}", major, minor);
   SDL_GL_SetSwapInterval(1);
   /* sf::ContextSettings cSettings; */
   /* cSettings.attributeFlags = sf::ContextSettings::Core | sf::ContextSettings::Debug; */
@@ -97,6 +97,21 @@ auto Window::open() const -> bool
   return true;
 #else
   return mWindow != nullptr;
+#endif
+}
+
+auto Window::size() const -> aw::Vec2i
+{
+#ifndef __ANDROID__
+  aw::Vec2i size;
+  SDL_GetWindowSize(mWindow, &size.x, &size.y);
+  APP_ERROR("Window size: {} {}", size.x, size.y);
+  return size;
+#else
+  SDL_DisplayMode displayMode;
+  SDL_GetCurrentDisplayMode(0, &displayMode);
+  APP_ERROR("Window size: {} {}", displayMode.w, displayMode.h);
+  return {displayMode.w, displayMode.h};
 #endif
 }
 

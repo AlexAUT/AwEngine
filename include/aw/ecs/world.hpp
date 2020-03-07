@@ -1,13 +1,14 @@
 #pragma once
 
-#include <aw/ecs/componentStorage.hpp>
-#include <aw/ecs/entity.hpp>
-#include <aw/ecs/nameResolver.hpp>
-#include <aw/ecs/sparseSet.hpp>
-#include <aw/ecs/systemGroup.hpp>
-#include <aw/ecs/view.hpp>
-#include <aw/util/time/time.hpp>
-#include <aw/util/type/staticFor.hpp>
+#include "aw/config.hpp"
+#include "aw/ecs/componentStorage.hpp"
+#include "aw/ecs/entity.hpp"
+#include "aw/ecs/nameResolver.hpp"
+#include "aw/ecs/sparseSet.hpp"
+#include "aw/ecs/systemGroup.hpp"
+#include "aw/ecs/view.hpp"
+#include "aw/util/time/time.hpp"
+#include "aw/util/type/staticFor.hpp"
 
 #include <array>
 #include <memory>
@@ -18,7 +19,7 @@
 #include <vector>
 
 namespace aw::ecs {
-class World
+class AW_API_EXPORT World
 {
 public:
   enum class SystemType

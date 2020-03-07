@@ -1,7 +1,7 @@
 #pragma once
 
-#include <aw/util/message/channel.hpp>
-#include <aw/util/type/typeCounter.hpp>
+#include "aw/util/messageBus/channel.hpp"
+#include "aw/util/type/typeCounter.hpp"
 
 #include <memory>
 #include <vector>
@@ -13,14 +13,14 @@ public:
   Bus() = default;
   Bus(const Bus&) = delete;
   Bus(const Bus&&) = delete;
-  Bus& operator=(const Bus&) = delete;
-  Bus& operator=(const Bus&&) = delete;
+  auto operator=(const Bus&) -> Bus& = delete;
+  auto operator=(const Bus &&) -> Bus& = delete;
 
   template <typename EventType>
-  Channel<EventType>& channel();
+  auto channel() -> Channel<EventType>&;
 
   template <typename EventType>
-  const Channel<EventType>& channel() const;
+  auto channel() const -> const Channel<EventType>&;
 
 private:
 private:
@@ -32,12 +32,13 @@ private:
 // Implementation
 namespace aw::msg {
 template <typename EventType>
-Channel<EventType>& Bus::channel()
+auto Bus::channel() -> Channel<EventType>&
 {
   auto channelIndex = TypeCounter::id<EventType>();
 
-  if (mChannels.size() <= channelIndex)
+  if (mChannels.size() <= channelIndex) {
     mChannels.resize(channelIndex + 1);
+  }
 
   if (!mChannels[channelIndex]) {
     mChannels[channelIndex].reset(new Channel<EventType>());
@@ -46,12 +47,13 @@ Channel<EventType>& Bus::channel()
 }
 
 template <typename EventType>
-const Channel<EventType>& Bus::channel() const
+auto Bus::channel() const -> const Channel<EventType>&
 {
   auto channelIndex = TypeCounter::id<EventType>();
 
-  if (mChannels.size() <= channelIndex)
+  if (mChannels.size() <= channelIndex) {
     mChannels.resize(channelIndex + 1);
+  }
 
   if (!mChannels[channelIndex]) {
     mChannels[channelIndex].reset(new Channel<EventType>());

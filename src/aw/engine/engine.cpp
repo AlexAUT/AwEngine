@@ -7,10 +7,11 @@
 #include <aw/util/time/clock.hpp>
 
 namespace aw {
-Engine::Engine(int argc, char** argv) :
-    mLoggerInitialized{aw::log::priv::init()},
+Engine::Engine(int argc, char** argv, std::string appName) :
+    mPathRegistry(argc, argv, appName),
+    mLoggerInitialized{aw::priv::log::init(appName, mPathRegistry.logPath())},
     // Be careful to not remove the log init call as first thing this constructor does
-    mWindow{WindowSettings{"AwEngine", aw::Vec2u{1280, 720}}, mBus}
+    mWindow{WindowSettings{appName, aw::Vec2u{1280, 720}}, mBus}
 {
   auto temp = mBus.channel<SDL_Event>().subscribeUnsafe([this](SDL_Event e) {
     if (e.type == SDL_WINDOWEVENT && e.window.type == SDL_WINDOWEVENT_CLOSE) {
@@ -19,6 +20,7 @@ Engine::Engine(int argc, char** argv) :
     if (e.type == SDL_QUIT) {
       shouldTerminate(true);
     }
+    return false;
   });
 }
 
@@ -63,6 +65,7 @@ void Engine::run()
     mWindow.display();
 
     mStateMachine.update();
+    activeState = mStateMachine.activeState();
 
     if (mShouldTerminate) {
       mWindow.close();
@@ -70,17 +73,47 @@ void Engine::run()
   }
 }
 
-StateMachine& Engine::stateMachine()
+auto Engine::stateMachine() -> StateMachine&
 {
   return mStateMachine;
 }
 
-msg::Bus& Engine::messageBus()
+auto Engine::stateMachine() const -> const StateMachine&
+{
+  return mStateMachine;
+}
+
+auto Engine::messageBus() -> msg::Bus&
 {
   return mBus;
 }
 
-bool Engine::shouldTerminate() const
+auto Engine::messageBus() const -> const msg::Bus&
+{
+  return mBus;
+}
+
+auto Engine::window() -> Window&
+{
+  return mWindow;
+}
+
+auto Engine::window() const -> const Window&
+{
+  return mWindow;
+}
+
+auto Engine::pathRegistry() -> PathRegistry&
+{
+  return mPathRegistry;
+}
+
+auto Engine::pathRegistry() const -> const PathRegistry&
+{
+  return mPathRegistry;
+}
+
+auto Engine::shouldTerminate() const -> bool
 {
   return mShouldTerminate;
 }

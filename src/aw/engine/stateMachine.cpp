@@ -31,6 +31,7 @@ void StateMachine::update()
     } else {
       while (mPopCount > 0) {
         mStateStack.pop();
+        mPopCount--;
       }
     }
   }

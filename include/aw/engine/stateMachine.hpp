@@ -1,7 +1,8 @@
 #pragma once
 
-#include <aw/engine/state.hpp>
-#include <aw/util/time/time.hpp>
+#include "aw/config.hpp"
+#include "aw/engine/state.hpp"
+#include "aw/util/time/time.hpp"
 
 #include <cstddef>
 #include <memory>
@@ -9,10 +10,10 @@
 #include <stack>
 
 namespace aw {
-class StateMachine
+class AW_API_EXPORT StateMachine
 {
 public:
-  State* activeState();
+  auto activeState() -> State*;
 
   void pushState(std::unique_ptr<State> state);
 

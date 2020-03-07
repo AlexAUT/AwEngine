@@ -3,11 +3,11 @@ set(FETCHCONTENT_BASE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/dependencies)
 function(loadDependencyFromGit name url tag)
   FetchContent_Declare(
     ${name}
-    SOURCE_DIR ${FETCHCONTENT_BASE_DIR}/${name}-src
+    #SOURCE_DIR ${FETCHCONTENT_BASE_DIR}/${name}-src
     BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/${name}-build
-    #GIT_REPOSITORY ${url}
-    #GIT_TAG ${tag}
-    #GIT_PROGRESS ON
+    GIT_REPOSITORY ${url}
+    GIT_TAG ${tag}
+    GIT_PROGRESS ON
   )
 
   FetchContent_GetProperties(${name})

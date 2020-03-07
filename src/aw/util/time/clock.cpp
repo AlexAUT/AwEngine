@@ -1,14 +1,14 @@
-#include <aw/util/time/clock.hpp>
+#include "aw/util/time/clock.hpp"
 
 namespace aw {
-GameClock::duration Clock::restart()
+auto Clock::restart() -> GameClock::duration
 {
   GameClock::time_point oldStart = mStartPoint;
   mStartPoint = GameClock::now();
   return mStartPoint - oldStart;
 }
 
-GameClock::duration Clock::getElapsedTime() const
+auto Clock::getElapsedTime() const -> GameClock::duration
 {
   GameClock::time_point now = GameClock::now();
   return now - mStartPoint;

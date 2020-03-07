@@ -1,7 +1,8 @@
 #pragma once
 
+#include "aw/config.hpp"
+#include "aw/ecs/componentStorage.hpp"
 #include "aw/util/type/staticFor.hpp"
-#include <aw/ecs/componentStorage.hpp>
 
 namespace aw::ecs {
 template <typename Component>

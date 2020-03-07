@@ -1,6 +1,7 @@
 #pragma once
 
-#include <aw/ecs/entity.hpp>
+#include "aw/config.hpp"
+#include "aw/ecs/entity.hpp"
 
 #include <cassert>
 #include <memory>
@@ -14,7 +15,7 @@ constexpr bool isPowerOf2(int v)
 }
 
 template <typename Type, size_t pageSize = 4096>
-class SparseSet
+class AW_API_EXPORT SparseSet
 {
 public:
   using DataIterator = typename std::vector<Type>::iterator;

@@ -1,7 +1,7 @@
 #pragma once
 
-#include <aw/util/time/gameClock.hpp>
-#include <aw/util/time/time.hpp>
+#include "aw/util/time/gameClock.hpp"
+#include "aw/util/time/time.hpp"
 
 namespace aw {
 class Clock

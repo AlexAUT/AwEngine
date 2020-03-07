@@ -1,37 +1,31 @@
 #pragma once
 
-#include <spdlog/spdlog.h>
+#include "aw/config.hpp"
+#include "aw/util/filesystem/filesystem.hpp"
+#include "spdlog/logger.h"
 
-namespace aw::log {
+#include <memory>
 
-namespace priv {
-bool init();
-}
+namespace aw {
+auto appLog() -> spdlog::logger&;
+auto engineLog() -> spdlog::logger&;
 
-template <typename... Args>
-void debug(const char* format, Args&&... args)
-{
-  spdlog::debug(format, std::forward<Args>(args)...);
-}
+namespace priv::log {
+auto init(std::string appName, const fs::path& logFolder) -> bool;
+} // namespace priv::log
+} // namespace aw
 
-template <typename... Args>
-void error(const char* format, Args&&... args)
-{
-  spdlog::error(format, std::forward<Args>(args)...);
-}
+#define APP_ERROR(...) aw::appLog().error(__VA_ARGS__);
+#define APP_WARN(...) aw::appLog().warn(__VA_ARGS__);
+#define APP_INFO(...) aw::appLog().info(__VA_ARGS__);
+#define APP_DEBUG(...) aw::appLog().debug(__VA_ARGS__);
+#define APP_TRACE(...) aw::appLog().trace(__VA_ARGS__);
 
-template <typename... Args>
-void info(const char* format, Args&&... args)
-{
-  spdlog::info(format, std::forward<Args>(args)...);
-}
-
-template <typename... Args>
-void warn(const char* format, Args&&... args)
-{
-  spdlog::warn(format, std::forward<Args>(args)...);
-}
-} // namespace aw::log
+#define ENGINE_ERROR(...) aw::engineLog().error(__VA_ARGS__);
+#define ENGINE_WARN(...) aw::engineLog().warn(__VA_ARGS__);
+#define ENGINE_INFO(...) aw::engineLog().info(__VA_ARGS__);
+#define ENGINE_DEBUG(...) aw::engineLog().debug(__VA_ARGS__);
+#define ENGINE_TRACE(...) aw::engineLog().trace(__VA_ARGS__);
 
 // TODO find better place
 #include <aw/util/math/vector.hpp>

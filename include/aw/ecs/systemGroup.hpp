@@ -1,14 +1,15 @@
 #pragma once
 
-#include <aw/ecs/entity.hpp>
-#include <aw/util/time/time.hpp>
+#include "aw/config.hpp"
+#include "aw/ecs/entity.hpp"
+#include "aw/util/time/time.hpp"
 
 #include <functional>
 
 namespace aw::ecs {
 class World;
 
-class SystemGroup
+class AW_API_EXPORT SystemGroup
 {
 public:
   using SystemFunc = std::function<void(aw::Seconds)>;

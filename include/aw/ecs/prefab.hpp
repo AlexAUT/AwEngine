@@ -1,14 +1,15 @@
 #pragma once
 
-#include <aw/ecs/entity.hpp>
-#include <aw/ecs/world.hpp>
+#include "aw/config.hpp"
+#include "aw/ecs/entity.hpp"
+#include "aw/ecs/world.hpp"
 
 #include <tuple>
 #include <type_traits>
 
 namespace aw::ecs {
 
-class Prefab
+class AW_API_EXPORT Prefab
 {
 public:
   Prefab() = default;
@@ -23,7 +24,7 @@ public:
 };
 
 template <typename... Components>
-class TuplePrefab : public Prefab
+class AW_API_EXPORT TuplePrefab : public Prefab
 {
 public:
   TuplePrefab(std::tuple<Components...> components) : components(components) {}

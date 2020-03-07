@@ -1,9 +1,11 @@
 #pragma once
 
-#include <stdint.h>
+#include "aw/config.hpp"
+
+#include <cstdint>
 
 namespace aw::ecs {
-class Entity
+class AW_API_EXPORT Entity
 {
 public:
   using Identifier = uint32_t;
