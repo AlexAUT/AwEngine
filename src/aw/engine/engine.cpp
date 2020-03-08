@@ -64,8 +64,14 @@ void Engine::run()
 
     mWindow.display();
 
+    // Check for new active state, if so always update the system with 0dt to ensure update is called before the first
+    // render
     mStateMachine.update();
-    activeState = mStateMachine.activeState();
+    auto newActiveState = mStateMachine.activeState();
+    if (newActiveState != activeState) {
+      activeState = newActiveState;
+      activeState->update(aw::Seconds{0});
+    }
 
     if (mShouldTerminate) {
       mWindow.close();

@@ -105,12 +105,12 @@ auto Window::size() const -> aw::Vec2i
 #ifndef __ANDROID__
   aw::Vec2i size;
   SDL_GetWindowSize(mWindow, &size.x, &size.y);
-  APP_ERROR("Window size: {} {}", size.x, size.y);
+  ENGINE_DEBUG("Window size: {} {}", size.x, size.y);
   return size;
 #else
   SDL_DisplayMode displayMode;
   SDL_GetCurrentDisplayMode(0, &displayMode);
-  APP_ERROR("Window size: {} {}", displayMode.w, displayMode.h);
+  ENGINE_DEBUG("Window size: {} {}", displayMode.w, displayMode.h);
   return {displayMode.w, displayMode.h};
 #endif
 }

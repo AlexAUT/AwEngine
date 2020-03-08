@@ -29,6 +29,7 @@ auto init(std::string appName, const fs::path& logFolder) -> bool;
 
 // TODO find better place
 #include <aw/util/math/vector.hpp>
+
 template <>
 struct fmt::formatter<aw::Vec3>
 {

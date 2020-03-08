@@ -17,4 +17,3 @@ using Vec2u = glm::uvec2;
 using Vec3u = glm::uvec3;
 using Vec4u = glm::uvec4;
 } // namespace aw
-
