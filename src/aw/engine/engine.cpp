@@ -1,10 +1,10 @@
+#include "aw/engine/engine.hpp"
+
 #include "SDL_events.h"
 #include "aw/engine/performance.hpp"
-
-#include <aw/engine/engine.hpp>
-#include <aw/engine/windowSettings.hpp>
-#include <aw/util/log.hpp>
-#include <aw/util/time/clock.hpp>
+#include "aw/engine/windowSettings.hpp"
+#include "aw/util/log.hpp"
+#include "aw/util/time/clock.hpp"
 
 namespace aw {
 Engine::Engine(int argc, char** argv, std::string appName) :
@@ -40,13 +40,14 @@ void Engine::run()
   while ((activeState != nullptr) && mWindow.open()) {
     frameSection.start();
 
-    mWindow.update();
     updateSection.start();
 
     if (mPause) {
+      mWindow.update();
       activeState->update(aw::Seconds::zero());
       frameClock.restart();
     } else {
+      mWindow.update();
       frameTime += frameClock.restart();
       while (frameTime >= updateRate) {
         activeState->update(updateRate);

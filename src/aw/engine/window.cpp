@@ -28,6 +28,10 @@ Window::Window(const WindowSettings& settings, const msg::Bus& bus) : mBus{bus}
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);                          // OpenGL 3.3
 #endif
 
+  SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+  SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+  SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+
   mWindow =
       SDL_CreateWindow(settings.title.c_str(), 0, 0, settings.resolution.x, settings.resolution.y, windowParameter);
 
@@ -113,6 +117,26 @@ auto Window::size() const -> aw::Vec2i
   ENGINE_DEBUG("Window size: {} {}", displayMode.w, displayMode.h);
   return {displayMode.w, displayMode.h};
 #endif
+}
+
+auto Window::handle() -> SDL_Window*
+{
+  return mWindow;
+}
+
+auto Window::handle() const -> const SDL_Window*
+{
+  return mWindow;
+}
+
+auto Window::context() -> SDL_GLContext&
+{
+  return mContext;
+}
+
+auto Window::context() const -> const SDL_GLContext&
+{
+  return mContext;
 }
 
 } // namespace aw

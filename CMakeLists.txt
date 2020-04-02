@@ -82,6 +82,7 @@ endif()
 add_subdirectory(src/aw/ecs)
 add_subdirectory(src/aw/engine)
 add_subdirectory(src/aw/util)
+add_subdirectory(src/aw/graphics)
 
 target_sources(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include/aw/util/log.hpp)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include)

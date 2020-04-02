@@ -26,6 +26,12 @@ public:
 
   auto size() const -> aw::Vec2i;
 
+  auto handle() -> SDL_Window*;
+  auto handle() const -> const SDL_Window*;
+
+  auto context() -> SDL_GLContext&;
+  auto context() const -> const SDL_GLContext&;
+
 private:
 private:
   SDL_Window* mWindow;
