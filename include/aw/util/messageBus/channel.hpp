@@ -115,7 +115,7 @@ auto Channel<EventType>::subscribe(Callback callback) -> Subscription<EventType>
 }
 
 template <typename EventType>
-auto Channel<EventType>::subscribeUnsafe(Callback callback) -> SubscriptionId
+[[maybe_unused]] auto Channel<EventType>::subscribeUnsafe(Callback callback) -> SubscriptionId
 {
   auto id = mIdCounter++;
   mIdMappings.push_back(id);

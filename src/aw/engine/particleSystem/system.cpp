@@ -16,17 +16,14 @@ auto sample(Distribution distribution)
   return distribution(mGenerator);
 }
 
-void onSpawnerConstruct(entt::registry& reg, entt::entity entity)
+ParticleSystem::ParticleSystem(entt::registry& registry) : mRegistry{&registry}
 {
-  auto& spawner = reg.get<ParticleSpawner>(entity);
-  ParticleSystem::SpawnerState state{spawner.startOffset + aw::Seconds{sample(spawner.interval)}};
-
-  reg.assign<ParticleSystem::SpawnerState>(entity, state);
+  mRegistry->on_construct<ParticleSpawner>().connect<&ParticleSystem::onSpawnerConstruct>(*this);
 }
 
-ParticleSystem::ParticleSystem(entt::registry& registry) : mRegistry{registry}
+ParticleSystem::~ParticleSystem()
 {
-  mRegistry.on_construct<ParticleSpawner>().connect<&aw::onSpawnerConstruct>();
+  mRegistry->on_construct<ParticleSpawner>().disconnect<&ParticleSystem::onSpawnerConstruct>(*this);
 }
 
 void ParticleSystem::update(aw::Seconds dt, View view)
@@ -35,48 +32,78 @@ void ParticleSystem::update(aw::Seconds dt, View view)
 
   view.each([this](entt::entity /*unused*/, ParticleSpawner& spawner, SpawnerState& state) {
     if (state.nextSpawn <= mSimulationTime) {
-      state.nextSpawn += aw::Seconds{sample(spawner.interval)};
+      auto diff = (mSimulationTime - state.nextSpawn).count();
 
       int amount = static_cast<int>(std::round(sample(spawner.amount)));
       for (int i = 0; i < amount; i++) {
+        // Substract diff to account for delayed spawning
+        auto ttl = sample(spawner.ttl) - diff;
+        if (ttl <= 0.f) {
+          continue;
+        }
+
+        auto aliveUntil = mSimulationTime.count() + ttl;
         Particle particle{
-            sample(spawner.ttl),
             aw::Vec3{sample(spawner.position[0]), sample(spawner.position[1]), sample(spawner.position[2])},
-            sample(spawner.size)};
+            sample(spawner.size), aw::Vec2{sample(spawner.velocityDir[0]), sample(spawner.velocityDir[1])}, aliveUntil,
+            ttl};
         mCreateList.emplace_back(particle);
       }
+      state.nextSpawn += aw::Seconds{sample(spawner.interval)};
     }
-  });
 
-  // Remove dead particles
-  // Try to replace them by the new particles first
-  auto oneBefore = std::next(mParticles.begin(), mParticles.size() - 1);
-  for (auto it = mParticles.begin(); it != mParticles.end(); it++) {
-    it->ttl -= dt.count();
-    if (it->ttl <= 0.f) {
-      if (!mCreateList.empty()) {
-        *it = mCreateList.back();
-        mCreateList.pop_back();
-      } else {
-        if (it != oneBefore) {
-          *it = mParticles.back();
-          it--;
-          mParticles.pop_back();
+    auto& particleContainer = mParticles[state.particleIndex];
+    auto& particles = particleContainer.particles;
+
+    // Update gradient
+    particleContainer.colorGradient = spawner.colorGradient;
+
+    // Remove dead particles
+    // Try to replace them by the new particles first
+    auto oneBefore = std::next(particles.begin(), particles.size() - 1);
+    for (auto it = particles.begin(); it != particles.end(); it++) {
+      if (it->aliveUntil <= mSimulationTime.count()) {
+        if (!mCreateList.empty()) {
+          *it = mCreateList.back();
+          mCreateList.pop_back();
         } else {
-          mParticles.pop_back();
-          break;
+          if (it != oneBefore) {
+            *it = particles.back();
+            it--;
+            particles.pop_back();
+          } else {
+            particles.pop_back();
+            break;
+          }
         }
       }
     }
-  }
-  // Insert the still pending ones
-  mParticles.insert(mParticles.end(), mCreateList.begin(), mCreateList.end());
-  mCreateList.clear();
+    // Insert the still pending ones
+    particles.insert(particles.end(), mCreateList.begin(), mCreateList.end());
+    mCreateList.clear();
+  });
 }
 
-auto ParticleSystem::particles() const -> const std::vector<Particle>&
+auto ParticleSystem::particles() const -> const std::vector<ParticleContainer>&
 {
   return mParticles;
+}
+
+auto ParticleSystem::simulationTime() const -> aw::Seconds
+{
+  return mSimulationTime;
+}
+
+void ParticleSystem::onSpawnerConstruct(entt::registry& registry, entt::entity entity)
+{
+  auto& spawner = registry.get<ParticleSpawner>(entity);
+
+  // TODO handle multiple with removal
+  auto index = mParticles.size();
+  mParticles.emplace_back();
+  ParticleSystem::SpawnerState state{spawner.startOffset + aw::Seconds{sample(spawner.interval)}, index};
+
+  registry.assign_or_replace<ParticleSystem::SpawnerState>(entity, state);
 }
 
 } // namespace aw

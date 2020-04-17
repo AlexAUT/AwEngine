@@ -13,9 +13,9 @@ PathRegistry::PathRegistry(int argc, const char* const* argv, const std::string&
 
   mWorkingPath = fs::current_path();
 
-  fs::path executablePath = argv[0];
+  mExecutablePath = fs::path(argv[0]).parent_path();
 
-  mAssetPath = executablePath.parent_path() / "assets";
+  mAssetPath = mWorkingPath / "assets";
 
   mConfigPath = fs::path(sago::getConfigHome()).append(appName);
   fs::create_directories(mConfigPath);
@@ -27,6 +27,11 @@ PathRegistry::PathRegistry(int argc, const char* const* argv, const std::string&
 auto PathRegistry::workingPath() const -> const fs::path&
 {
   return mWorkingPath;
+}
+
+auto PathRegistry::executablePath() const -> const fs::path&
+{
+  return mExecutablePath;
 }
 
 auto PathRegistry::assetPath() const -> const fs::path&

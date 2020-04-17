@@ -12,17 +12,23 @@
 namespace aw::serialize {
 
 template <typename Type>
-void file(const fs::path& path, Type& instance)
+void file(const fs::path& path, Type& instance, const char* key = nullptr)
 {
   aw::FileOutputStream outFile(path);
-  cereal::JSONOutputArchive archive(outFile);
-  archive(instance);
+  {
+    cereal::JSONOutputArchive archive(outFile);
+    if (key) {
+      archive(cereal::make_nvp(key, instance));
+    } else {
+      archive(instance);
+    }
+  }
 }
 } // namespace aw::serialize
 
 namespace aw::parse {
 template <typename Type>
-void file(const fs::path& path, Type& instance)
+void file(const fs::path& path, Type& instance, const char* key = nullptr)
 {
   aw::FileInputStream inFile(path);
   if (!inFile.isOpen()) {
@@ -30,14 +36,18 @@ void file(const fs::path& path, Type& instance)
     return;
   }
   cereal::JSONInputArchive archive(inFile);
-  archive(instance);
+  if (key) {
+    archive(cereal::make_nvp(key, instance));
+  } else {
+    archive(instance);
+  }
 }
 
 template <typename Type>
-auto file(const fs::path& path) -> Type
+auto file(const fs::path& path, const char* key = nullptr) -> Type
 {
   Type instance;
-  file(path, instance);
+  file(path, instance, key);
   return instance;
 }
 

@@ -13,7 +13,7 @@ Engine::Engine(int argc, char** argv, std::string appName) :
     // Be careful to not remove the log init call as first thing this constructor does
     mWindow{WindowSettings{appName, aw::Vec2u{1280, 720}}, mBus}
 {
-  auto temp = mBus.channel<SDL_Event>().subscribeUnsafe([this](SDL_Event e) {
+  [[maybe_unused]] auto temp = mBus.channel<SDL_Event>().subscribeUnsafe([this](SDL_Event e) {
     if (e.type == SDL_WINDOWEVENT && e.window.type == SDL_WINDOWEVENT_CLOSE) {
       shouldTerminate(true);
     }

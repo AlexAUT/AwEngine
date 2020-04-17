@@ -4,7 +4,7 @@
 
 namespace aw {
 
-SDLStreamBuffer::SDLStreamBuffer(const fs::path& filePath, const char* flags) :
+SDLStreamBuffer::SDLStreamBuffer(const aw::fs::path& filePath, const char* flags) :
     mHandle{SDL_RWFromFile(filePath.c_str(), flags)}
 {
   if (mHandle) {

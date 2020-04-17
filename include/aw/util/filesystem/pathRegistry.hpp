@@ -10,13 +10,14 @@ public:
   PathRegistry(int argc, const char* const* argv, const std::string& appName);
 
   auto workingPath() const -> const fs::path&;
+  auto executablePath() const -> const fs::path&;
   auto assetPath() const -> const fs::path&;
   auto configPath() const -> const fs::path&;
   auto logPath() const -> const fs::path&;
 
 private:
-private:
   fs::path mWorkingPath;
+  fs::path mExecutablePath;
   fs::path mAssetPath;
   fs::path mConfigPath;
   fs::path mLogPath;

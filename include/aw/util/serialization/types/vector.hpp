@@ -7,4 +7,3 @@ void serialize(Archive& archive, glm::uvec2& vec)
 {
   archive(vec.x, vec.y);
 }
-
