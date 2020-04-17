@@ -9,7 +9,8 @@
 #include "aw/util/time/time.hpp"
 
 namespace aw {
-ParticleRenderer::ParticleRenderer(aw::PathRegistry& pathRegistry, aw::Vec2i windowSize) : mViewportSize{windowSize}
+ParticleRenderer::ParticleRenderer(const aw::PathRegistry& pathRegistry, aw::Vec2i windowSize) :
+    mViewportSize{windowSize}
 {
   GL_CHECK(glGenBuffers(1, &mVertexVbo));
   GL_CHECK(glGenBuffers(1, &mParticleVbo));

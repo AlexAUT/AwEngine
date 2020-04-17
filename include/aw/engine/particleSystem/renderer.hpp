@@ -17,7 +17,7 @@ public:
   using Gradient = std::array<aw::Color, 2>;
 
 public:
-  ParticleRenderer(aw::PathRegistry& pathRegistry, aw::Vec2i windowSize);
+  ParticleRenderer(const aw::PathRegistry& pathRegistry, aw::Vec2i windowSize);
   ~ParticleRenderer();
 
   ParticleRenderer(const ParticleRenderer&) = delete;
