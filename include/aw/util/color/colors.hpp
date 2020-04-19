@@ -145,6 +145,7 @@ const Color Tan = {0.824f, 0.706f, 0.549f, 1.000f};
 const Color Teal = {0.000f, 0.502f, 0.502f, 1.000f};
 const Color Thistle = {0.847f, 0.749f, 0.847f, 1.000f};
 const Color Tomato = {1.000f, 0.388f, 0.278f, 1.000f};
+const Color Transparent = {0.f, 0.f, 0.f, 0.f};
 const Color Turquoise = {0.251f, 0.878f, 0.816f, 1.000f};
 const Color Violet = {0.933f, 0.510f, 0.933f, 1.000f};
 const Color Wheat = {0.961f, 0.871f, 0.702f, 1.000f};
