@@ -18,7 +18,7 @@ SDLStreamBuffer::SDLStreamBuffer(const aw::fs::path& filePath, const char* flags
 SDLStreamBuffer::~SDLStreamBuffer()
 {
   if (mHandle) {
-    sync();
+    SDLStreamBuffer::sync();
     SDL_RWclose(mHandle);
   }
 }
@@ -38,21 +38,25 @@ auto SDLStreamBuffer::underflow() -> std::streambuf::int_type
 
 auto SDLStreamBuffer::overflow(std::streambuf::int_type value) -> std::streambuf::int_type
 {
-  xsputn(pbase(), pptr() - pbase());
+  SDLStreamBuffer::xsputn(pbase(), pptr() - pbase());
   setp(pbase(), epptr());
+
+  if (value != EOF) {
+    sputc(static_cast<char>(value));
+  }
 
   return value;
 }
 
 auto SDLStreamBuffer::sync() -> int
 {
-  std::streambuf::int_type result = overflow(traits_type::eof());
+  std::streambuf::int_type result = SDLStreamBuffer::overflow(traits_type::eof());
   return traits_type::eq_int_type(result, traits_type::eof()) ? -1 : 0;
 }
 
 auto SDLStreamBuffer::xsputn(const char* s, std::streamsize n) -> std::streamsize
 {
-  SDL_RWwrite(mHandle, s, n, 1);
+  SDL_RWwrite(mHandle, s, 1, n);
   return n;
 }
 

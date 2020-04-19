@@ -25,7 +25,7 @@ public:
 
   auto xsputn(const char* s, std::streamsize n) -> std::streamsize override;
 
-  auto isOpen() const -> bool;
+  [[nodiscard]] auto isOpen() const -> bool;
 
 private:
   SDL_RWops* mHandle{nullptr};
