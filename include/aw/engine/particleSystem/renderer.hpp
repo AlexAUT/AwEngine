@@ -26,12 +26,12 @@ public:
   void render(const aw::Mat4& vp, aw::Seconds simulationTime,
               const std::vector<aw::ParticleSystem::ParticleContainer>& particles);
 
-private:
-  void colorGradient(Gradient gradient);
+  void windowResize(aw::Vec2i windowSize);
 
 private:
-  aw::Vec2i mViewportSize;
+  void colorGradient(Gradient gradient, float fadeIn);
 
+private:
   Gradient mColorGradient;
 
   unsigned mVertexVbo{};
@@ -44,5 +44,6 @@ private:
   int mVpLoc{-1};
   int mSimTimeLoc{-1};
   int mGradientTextureLoc{-1};
+  float mFadeIn{-1.f};
 };
 } // namespace aw

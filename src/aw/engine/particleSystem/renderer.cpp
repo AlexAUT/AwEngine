@@ -8,15 +8,31 @@
 #include "aw/util/log.hpp"
 #include "aw/util/time/time.hpp"
 
+// float angle = 0.f;
+// float angleDiff = aw::pi() / resolutionH;
+//
+// std::array<aw::Vec2, resolution + 2> vertexData;
+// vertexData[0] = aw::Vec2{0.f};
+// for (int x = 0; x < resolutionH; x++) {
+// vertexData[1 + x] = aw::Vec2{glm::cos(angle), glm::sin(angle)};
+// angle += angleDiff;
+//}
+// angle = aw::pi();
+// for (int x = resolutionH; x >= 0; x--) {
+// vertexData[1 + resolutionH + (resolutionH - x)] = aw::Vec2{glm::cos(angle), -glm::sin(angle)};
+// angle -= angleDiff;
+//}
+
 namespace aw {
-ParticleRenderer::ParticleRenderer(const aw::PathRegistry& pathRegistry, aw::Vec2i windowSize) :
-    mViewportSize{windowSize}
+ParticleRenderer::ParticleRenderer(const aw::PathRegistry& pathRegistry, aw::Vec2i windowSize)
 {
   GL_CHECK(glGenBuffers(1, &mVertexVbo));
   GL_CHECK(glGenBuffers(1, &mParticleVbo));
 
-  std::array<aw::Vec2, 4> vertices{aw::Vec2{-0.5f, -0.5f}, aw::Vec2{0.5f, -0.5f}, aw::Vec2{0.5f, 0.5f},
-                                   aw::Vec2{-0.5f, 0.5f}};
+  //  std::array<aw::Vec2, 4> vertices{aw::Vec2{-0.5f, -0.5f}, aw::Vec2{0.5f, -0.5f}, aw::Vec2{0.5f, 0.5f},
+  //                                   aw::Vec2{-0.5f, 0.5f}};
+  std::array<aw::Vec2, 4> vertices{aw::Vec2{-0.5f, 0.5f}, aw::Vec2{-0.5f, -0.5f}, aw::Vec2{0.5f, -0.5f},
+                                   aw::Vec2{0.5f, 0.5f}};
 
   GL_CHECK(glGenVertexArrays(1, &mVao));
   GL_CHECK(glBindVertexArray(mVao));
@@ -37,6 +53,11 @@ ParticleRenderer::ParticleRenderer(const aw::PathRegistry& pathRegistry, aw::Vec
   GL_CHECK(glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(Particle),
                                  reinterpret_cast<const void*>(offsetof(Particle, velocity))));
   GL_CHECK(glVertexAttribDivisor(2, 1));
+
+  GL_CHECK(glEnableVertexAttribArray(3));
+  GL_CHECK(glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(Particle),
+                                 reinterpret_cast<const void*>(offsetof(Particle, rotation))));
+  GL_CHECK(glVertexAttribDivisor(3, 1));
 
   GL_CHECK(glBindVertexArray(0));
 
@@ -60,6 +81,8 @@ ParticleRenderer::ParticleRenderer(const aw::PathRegistry& pathRegistry, aw::Vec
 
   // Generate color gradient texture
   GL_CHECK(glGenTextures(1, &mColorGradientTexture));
+
+  windowResize(windowSize);
 }
 
 ParticleRenderer::~ParticleRenderer()
@@ -89,7 +112,7 @@ void ParticleRenderer::render(const aw::Mat4& vp, aw::Seconds simulationTime,
   GL_CHECK(glBindVertexArray(mVao));
 
   for (auto& pLayer : particles) {
-    colorGradient(pLayer.colorGradient);
+    colorGradient(pLayer.colorGradient, pLayer.fadeInTime);
 
     auto& p = pLayer.particles;
     GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, mParticleVbo));
@@ -102,17 +125,49 @@ void ParticleRenderer::render(const aw::Mat4& vp, aw::Seconds simulationTime,
   GL_CHECK(glBindVertexArray(0));
 }
 
-void ParticleRenderer::colorGradient(Gradient gradient)
+void ParticleRenderer::windowResize(aw::Vec2i windowSize)
 {
-  if (mColorGradient == gradient) {
+  float aspectRation = static_cast<float>(windowSize.y) / static_cast<float>(windowSize.x);
+  GL_CHECK(glUseProgram(mProgram));
+  GL_CHECK(glUniform1f(glGetUniformLocation(mProgram, "aspectRatio"), aspectRation));
+  GL_CHECK(glUseProgram(0));
+}
+
+auto lerp(float f, float a, float b) -> float
+{
+  return a + f * (b - a);
+}
+
+auto mix(float ratio, Color a, Color b) -> aw::Color
+{
+  return aw::Color{lerp(ratio, a.r, b.r), lerp(ratio, a.g, b.g), lerp(ratio, a.b, b.b), lerp(ratio, a.a, b.a)};
+}
+
+void ParticleRenderer::colorGradient(Gradient gradient, float fadeIn)
+{
+  if (mFadeIn == fadeIn && mColorGradient == gradient) {
     return;
   }
 
+  mFadeIn = fadeIn;
   mColorGradient = gradient;
 
   GL_CHECK(glBindTexture(GL_TEXTURE_1D, mColorGradientTexture));
 
-  GL_CHECK(glTexImage1D(GL_TEXTURE_1D, 0, GL_RGBA, mColorGradient.size(), 0, GL_RGBA, GL_FLOAT, mColorGradient.data()));
+  constexpr int size = 128;
+  int startUp = static_cast<int>(size * fadeIn);
+  int gradientSize = size - startUp;
+
+  std::array<aw::Color, size> finalGradient;
+  for (int i = 0; i < startUp; i++) {
+    finalGradient[i] = mix(static_cast<float>(i) / static_cast<float>(startUp), aw::Colors::Transparent, gradient[0]);
+  }
+  for (int i = 0; i < gradientSize; i++) {
+    finalGradient[i + startUp] =
+        mix(static_cast<float>(i) / static_cast<float>(gradientSize), gradient[0], gradient[1]);
+  }
+
+  GL_CHECK(glTexImage1D(GL_TEXTURE_1D, 0, GL_RGBA, finalGradient.size(), 0, GL_RGBA, GL_FLOAT, finalGradient.data()));
 
   glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);

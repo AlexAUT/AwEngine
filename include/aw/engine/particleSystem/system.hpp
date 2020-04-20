@@ -7,6 +7,10 @@
 #include "spawner.hpp"
 
 namespace aw {
+class Transform;
+}
+
+namespace aw {
 class AW_API_EXPORT ParticleSystem
 {
 public:
@@ -17,6 +21,7 @@ public:
     aw::Vec2 velocity;
     float aliveUntil;
     float aliveFor;
+    float rotation;
   };
 
   struct AW_API_EXPORT SpawnerState
@@ -28,16 +33,15 @@ public:
   struct ParticleContainer
   {
     std::array<aw::Color, 2> colorGradient;
+    float fadeInTime;
     std::vector<Particle> particles;
   };
 
 public:
-  using View = entt::basic_view<entt::entity, entt::exclude_t<>, ParticleSpawner, SpawnerState>;
+  using View = entt::basic_view<entt::entity, entt::exclude_t<>, ParticleSpawner, SpawnerState, aw::Transform>;
 
   ParticleSystem(entt::registry& registry);
   ~ParticleSystem();
-
-  auto operator=(ParticleSystem&&) noexcept -> ParticleSystem&;
 
   void update(aw::Seconds dt, View view);
 

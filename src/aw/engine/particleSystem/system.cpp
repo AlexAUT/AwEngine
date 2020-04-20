@@ -2,6 +2,7 @@
 
 #include "aw/engine/particleSystem/spawner.hpp"
 #include "aw/util/log.hpp"
+#include "aw/util/math/transform.hpp"
 #include "entt/entity/registry.hpp"
 #include "entt/entity/view.hpp"
 
@@ -30,9 +31,15 @@ void ParticleSystem::update(aw::Seconds dt, View view)
 {
   mSimulationTime += dt;
 
-  view.each([this](entt::entity /*unused*/, ParticleSpawner& spawner, SpawnerState& state) {
-    if (state.nextSpawn <= mSimulationTime) {
+  view.each([this](entt::entity /*unused*/, ParticleSpawner& spawner, SpawnerState& state, Transform& transform) {
+    while (state.nextSpawn <= mSimulationTime) {
+
       auto diff = (mSimulationTime - state.nextSpawn).count();
+
+      auto instantSpawner = (spawner.interval.min() == 0.f && spawner.interval.max() == 0.f);
+      if (instantSpawner) {
+        diff = 0.f;
+      }
 
       int amount = static_cast<int>(std::round(sample(spawner.amount)));
       for (int i = 0; i < amount; i++) {
@@ -43,13 +50,25 @@ void ParticleSystem::update(aw::Seconds dt, View view)
         }
 
         auto aliveUntil = mSimulationTime.count() + ttl;
-        Particle particle{
-            aw::Vec3{sample(spawner.position[0]), sample(spawner.position[1]), sample(spawner.position[2])},
-            sample(spawner.size), aw::Vec2{sample(spawner.velocityDir[0]), sample(spawner.velocityDir[1])}, aliveUntil,
-            ttl};
+        auto pos = transform.position() +
+                   aw::Vec3{sample(spawner.position[0]), sample(spawner.position[1]), sample(spawner.position[2])};
+
+        auto pos1 = transform.transform() * aw::Vec4{sample(spawner.position[0]), sample(spawner.position[1]),
+                                                     sample(spawner.position[2]), 1.0};
+
+        auto velocity =
+            transform.transform() * aw::Vec4{sample(spawner.velocityDir[0]), 0.f, sample(spawner.velocityDir[1]), 0.f};
+        APP_ERROR("ROT: {}", velocity);
+        velocity.y = velocity.z;
+
+        Particle particle{aw::Vec3{pos}, sample(spawner.size),    aw::Vec2{velocity}, aliveUntil,
+                          ttl,           sample(spawner.rotation)};
         mCreateList.emplace_back(particle);
       }
-      state.nextSpawn += aw::Seconds{sample(spawner.interval)};
+      state.nextSpawn += std::max(aw::Seconds{sample(spawner.interval)}, aw::Seconds{0.f});
+      if (instantSpawner) {
+        break;
+      }
     }
 
     auto& particleContainer = mParticles[state.particleIndex];
@@ -57,6 +76,7 @@ void ParticleSystem::update(aw::Seconds dt, View view)
 
     // Update gradient
     particleContainer.colorGradient = spawner.colorGradient;
+    particleContainer.fadeInTime = spawner.fadeIn;
 
     // Remove dead particles
     // Try to replace them by the new particles first
@@ -96,6 +116,8 @@ auto ParticleSystem::simulationTime() const -> aw::Seconds
 
 void ParticleSystem::onSpawnerConstruct(entt::registry& registry, entt::entity entity)
 {
+  assert(registry.has<aw::Transform>(entity) && "A particle spawner will not work without a transform component!");
+
   auto& spawner = registry.get<ParticleSpawner>(entity);
 
   // TODO handle multiple with removal
