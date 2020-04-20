@@ -58,7 +58,6 @@ void ParticleSystem::update(aw::Seconds dt, View view)
 
         auto velocity =
             transform.transform() * aw::Vec4{sample(spawner.velocityDir[0]), 0.f, sample(spawner.velocityDir[1]), 0.f};
-        APP_ERROR("ROT: {}", velocity);
         velocity.y = velocity.z;
 
         Particle particle{aw::Vec3{pos}, sample(spawner.size),    aw::Vec2{velocity}, aliveUntil,
