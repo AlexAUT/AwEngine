@@ -10,21 +10,20 @@
 #include <stack>
 
 namespace aw {
+// Simple StateMachine with on active state
 class AW_API_EXPORT StateMachine
 {
 public:
   auto activeState() -> State*;
 
-  void pushState(std::unique_ptr<State> state);
+  // This does not switch directly, the switch will always happen after the update function is called
+  void nextState(std::unique_ptr<State> state);
 
-  void popState(int count = 1);
-  void popAllStates();
-
+  // Replaced the active state with the next state if set
   void update();
 
 private:
-  std::stack<std::unique_ptr<State>> mStateStack;
-  std::queue<std::unique_ptr<State>> mPushQueue;
-  size_t mPopCount{0};
+  std::unique_ptr<State> mActiveState{nullptr};
+  std::unique_ptr<State> mNextState{nullptr};
 };
 } // namespace aw

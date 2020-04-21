@@ -26,6 +26,7 @@ Engine::Engine(int argc, char** argv, const std::string& appName) :
 
 void Engine::run()
 {
+  // We need to call update here to active the initial state!
   mStateMachine.update();
   auto* activeState = mStateMachine.activeState();
 
