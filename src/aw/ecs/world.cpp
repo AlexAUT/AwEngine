@@ -4,7 +4,7 @@
 #include <utility>
 
 namespace aw::ecs {
-Entity World::createEntity()
+auto World::createEntity() -> Entity
 {
   assert(mEntities.size() >= mAliveEntities);
 
@@ -13,15 +13,15 @@ Entity World::createEntity()
     mEntities.emplace_back(mEntities.size(), 0);
 
     return mEntities.back();
-  } else {
-    auto index = mFreeListBegin;
-    // Update free list begin and restore valid entity id
-    mFreeListBegin = mEntities[index].index();
-    assert(mFreeListBegin <= mFreeListEnd);
-    mEntities[index] = Entity(index, mEntities[index].counter() + 1);
-    assert(mEntities[index].index() <= mFreeListEnd);
-    return mEntities[index];
   }
+
+  auto index = mFreeListBegin;
+  // Update free list begin and restore valid entity id
+  mFreeListBegin = mEntities[index].index();
+  assert(mFreeListBegin <= mFreeListEnd);
+  mEntities[index] = Entity(index, mEntities[index].counter() + 1);
+  assert(mEntities[index].index() <= mFreeListEnd);
+  return mEntities[index];
 }
 
 void World::destroyEntity(Entity e)

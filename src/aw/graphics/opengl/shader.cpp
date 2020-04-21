@@ -11,7 +11,7 @@ namespace aw::gl {
 
 namespace shaderStage {
 
-GLenum toGL(Type type)
+auto toGL(Type type) -> GLenum
 {
   switch (type) {
   case Type::Vertex:
@@ -59,9 +59,9 @@ auto createFromFile(const fs::path& path, Type type) -> unsigned
   if (!success) {
     int size = 0;
     glGetShaderiv(stage, GL_INFO_LOG_LENGTH, &size);
-    std::vector<char> info(size);
-    info.resize(size + 1);
-    glGetShaderInfoLog(stage, info.size(), nullptr, info.data());
+    std::vector<char> info(static_cast<std::size_t>(size));
+    info.resize(size + 1U);
+    glGetShaderInfoLog(stage, static_cast<GLsizei>(info.size()), nullptr, info.data());
 
     APP_ERROR("Failed to compile shader stage {}: {}", path.c_str(), info.data());
 
@@ -87,8 +87,8 @@ auto createProgram(unsigned vertexShader, unsigned fragmentShader) -> unsigned
   if (!success) {
     int size = 0;
     glGetProgramiv(prog, GL_INFO_LOG_LENGTH, &size);
-    std::vector<char> info(size + 1);
-    glGetProgramInfoLog(prog, info.size(), nullptr, info.data());
+    std::vector<char> info(size + 1U);
+    glGetProgramInfoLog(prog, static_cast<GLsizei>(info.size()), nullptr, info.data());
 
     APP_ERROR("Failed to link shader program: {}", info.data());
 

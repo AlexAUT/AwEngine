@@ -3,7 +3,7 @@
 namespace aw {
 State::State(StateMachine& stateMachine) : mStateMachine(stateMachine) {}
 
-StateMachine& State::stateMachine()
+auto State::stateMachine() -> StateMachine&
 {
   return mStateMachine;
 }

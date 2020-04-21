@@ -7,7 +7,7 @@
 #include "aw/util/time/clock.hpp"
 
 namespace aw {
-Engine::Engine(int argc, char** argv, std::string appName) :
+Engine::Engine(int argc, char** argv, const std::string& appName) :
     mPathRegistry(argc, argv, appName),
     mLoggerInitialized{aw::priv::log::init(appName, mPathRegistry.logPath())},
     // Be careful to not remove the log init call as first thing this constructor does
@@ -27,7 +27,7 @@ Engine::Engine(int argc, char** argv, std::string appName) :
 void Engine::run()
 {
   mStateMachine.update();
-  auto activeState = mStateMachine.activeState();
+  auto* activeState = mStateMachine.activeState();
 
   aw::Clock frameClock;
   aw::Seconds frameTime{0.f};
@@ -68,7 +68,7 @@ void Engine::run()
     // Check for new active state, if so always update the system with 0dt to ensure update is called before the first
     // render
     mStateMachine.update();
-    auto newActiveState = mStateMachine.activeState();
+    auto* newActiveState = mStateMachine.activeState();
     if (newActiveState != activeState) {
       activeState = newActiveState;
       activeState->update(aw::Seconds{0});
@@ -135,7 +135,7 @@ void Engine::pause(bool value)
   mPause = value;
 }
 
-bool Engine::pause() const
+auto Engine::pause() const -> bool
 {
   return mPause;
 }

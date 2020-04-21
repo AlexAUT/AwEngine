@@ -8,7 +8,7 @@ auto SystemGroup::add(SystemFunc system) -> SystemId
 {
   auto id = ++mIdCounter;
   mIds.push_back(id);
-  mSystems.push_back(system);
+  mSystems.push_back(std::move(system));
 
   return id;
 }

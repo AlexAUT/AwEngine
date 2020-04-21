@@ -1,7 +1,6 @@
 #include "aw/util/log.hpp"
 
 #include "aw/config.hpp"
-#include "fmt/core.h"
 #include "spdlog/logger.h"
 #include "spdlog/sinks/basic_file_sink.h"
 #include "spdlog/sinks/stdout_color_sinks.h"
@@ -28,7 +27,7 @@ auto init(std::string appName, const fs::path& logPath) -> bool
   engineLogger = std::make_shared<spdlog::logger>("awEngine", spdlog::sinks_init_list({console_sink, file_sink}));
   spdlog::register_logger(engineLogger);
 
-  appLogger = std::make_shared<spdlog::logger>((appName), spdlog::sinks_init_list({console_sink, file_sink}));
+  appLogger = std::make_shared<spdlog::logger>(std::move(appName), spdlog::sinks_init_list({console_sink, file_sink}));
   spdlog::set_default_logger(appLogger);
 
   return true;

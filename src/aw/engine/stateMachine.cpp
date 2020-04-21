@@ -2,7 +2,7 @@
 #include <aw/engine/stateMachine.hpp>
 
 namespace aw {
-State* StateMachine::activeState()
+auto StateMachine::activeState() -> State*
 {
   return mStateStack.empty() ? nullptr : mStateStack.top().get();
 }

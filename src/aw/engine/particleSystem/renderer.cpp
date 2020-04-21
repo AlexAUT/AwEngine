@@ -111,15 +111,15 @@ void ParticleRenderer::render(const aw::Mat4& vp, aw::Seconds simulationTime,
 
   GL_CHECK(glBindVertexArray(mVao));
 
-  for (auto& pLayer : particles) {
+  for (const auto& pLayer : particles) {
     colorGradient(pLayer.colorGradient, pLayer.fadeInTime);
 
-    auto& p = pLayer.particles;
+    const auto& p = pLayer.particles;
     GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, mParticleVbo));
     GL_CHECK(glBufferData(GL_ARRAY_BUFFER, sizeof(p.front()) * p.size(), p.data(), GL_STREAM_DRAW));
     GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
 
-    GL_CHECK(glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, 4, p.size()));
+    GL_CHECK(glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, 4, static_cast<GLsizei>(p.size())));
   }
 
   GL_CHECK(glBindVertexArray(0));

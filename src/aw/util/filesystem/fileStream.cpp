@@ -56,7 +56,7 @@ auto SDLStreamBuffer::sync() -> int
 
 auto SDLStreamBuffer::xsputn(const char* s, std::streamsize n) -> std::streamsize
 {
-  SDL_RWwrite(mHandle, s, 1, n);
+  SDL_RWwrite(mHandle, s, 1, static_cast<std::size_t>(n));
   return n;
 }
 

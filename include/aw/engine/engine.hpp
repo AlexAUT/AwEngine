@@ -10,7 +10,7 @@ namespace aw {
 class AW_API_EXPORT Engine
 {
 public:
-  Engine(int argc, char** argv, std::string appName);
+  Engine(int argc, char** argv, const std::string& appName);
 
   void run();
 
