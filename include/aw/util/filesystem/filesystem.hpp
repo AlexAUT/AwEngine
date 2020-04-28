@@ -1,6 +1,9 @@
 #pragma once
 
-#if defined(__cplusplus) && __cplusplus >= 201703L
+#include <aw/config.hpp>
+
+#ifdef AW_OS_ANDROID
+#elif defined(__cplusplus) && __cplusplus >= 201703L
 #define GHC_USE_STD_FS
 #elif defined(__has_include)
 #if __has_include(<filesystem>)
@@ -16,6 +19,6 @@ namespace fs = std::filesystem;
 #else
 #include <ghc/filesystem.hpp>
 namespace aw {
-namespace aw::fs = ghc::filesystem;
+namespace fs = ghc::filesystem;
 }
 #endif

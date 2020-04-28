@@ -87,7 +87,7 @@ add_subdirectory(src/aw/graphics)
 target_sources(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include/aw/util/log.hpp)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${FETCHCONTENT_BASE_DIR}/glm-src)
-target_link_libraries(${PROJECT_NAME} PUBLIC spdlog freetype SDL2 platform_folders EnTT::EnTT cereal)
+target_link_libraries(${PROJECT_NAME} PUBLIC spdlog freetype SDL2 platform_folders EnTT::EnTT cereal ghc_filesystem)
 
 if (NOT ${CMAKE_SYSTEM_NAME} STREQUAL "Android")
   target_link_libraries(${PROJECT_NAME} PUBLIC SDL2)
@@ -97,9 +97,15 @@ if (NOT ${CMAKE_SYSTEM_NAME} STREQUAL "Android")
 
   cmake_policy(SET CMP0079 NEW)
   target_link_libraries(SDL2 ${CMAKE_DL_LIBS} dl)
-else()
-  target_link_libraries(${PROJECT_NAME} PUBLIC android log GLESv3 GLESv2 GLESv1_CM)
-endif()
+else ()
+  # find android gamesdk
+  include("${ANDROID_GAME_SDK_DIR}/samples/gamesdk.cmake")
+
+  add_gamesdk_target(PACKAGE_DIR "${ANDROID_GAME_SDK_DIR}" BUILD_TYPE "Release")
+
+  #link android specific libraries
+  target_link_libraries(${PROJECT_NAME} PUBLIC EGL gamesdk android log GLESv3 GLESv2 GLESv1_CM)
+endif ()
 
 
 set(AW_BUILD_TESTS OFF CACHE BOOL "Santizer option to use")
@@ -117,4 +123,4 @@ add_executable(awTests EXCLUDE_FROM_ALL ${AW_TEST_SOURCES})
 endif()
 
 include(cmake/enableWarnings.cmake)
-enable_warnings(${PROJECT_NAME})
+#enable_warnings(${PROJECT_NAME})

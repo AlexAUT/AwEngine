@@ -7,6 +7,17 @@
 #include <aw/engine/windowSettings.hpp>
 #include <aw/util/messageBus/messageBus.hpp>
 
+#include <SDL_syswm.h>
+
+#ifdef AW_OS_ANDROID
+#include "SDL.h"
+#include "SDL_egl.h"
+#include "SDL_syswm.h"
+#include "SDL_video.h"
+#include "swappy/swappyGL.h"
+#include "swappy/swappyGL_extra.h"
+#endif
+
 namespace aw {
 Window::Window(const WindowSettings& settings, const msg::Bus& bus) : mBus{bus}
 {
@@ -28,14 +39,16 @@ Window::Window(const WindowSettings& settings, const msg::Bus& bus) : mBus{bus}
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);                          // OpenGL 3.3
 #endif
 
-  SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-  SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-  SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+  //  SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+  //  SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+  //  SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 
+  APP_INFO("OpenGL Version: {}.{}", 1, 1);
   mWindow =
       SDL_CreateWindow(settings.title.c_str(), 0, 0, settings.resolution.x, settings.resolution.y, windowParameter);
 
   mContext = SDL_GL_CreateContext(mWindow);
+
   int major{0};
   SDL_GL_GetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, &major);
   int minor{0};
@@ -47,6 +60,16 @@ Window::Window(const WindowSettings& settings, const msg::Bus& bus) : mBus{bus}
   /* cSettings.majorVersion = 4; */
   /* cSettings.minorVersion = 2; */
   /* cSettings.depthBits = 8; */
+
+#ifdef AW_OS_ANDROID
+  SwappyGL_init(reinterpret_cast<JNIEnv*>(SDL_AndroidGetJNIEnv()), reinterpret_cast<jobject>(SDL_AndroidGetActivity()));
+
+  SDL_SysWMinfo winInfo;
+  SDL_VERSION(&winInfo.version);
+  SDL_GetWindowWMInfo(mWindow.handle(), &winInfo);
+  mSurface = winInfo.android.surface;
+  mDisplay = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+#endif
 }
 
 Window::~Window()
@@ -90,9 +113,14 @@ void Window::update()
   mBus.channel<SDL_Event>().broadcast(event);
 #endif
 }
+
 void Window::display()
 {
+#ifdef AW_OS_ANDROID
+  SwappyGL_swap(display, winInfo.info.android.surface);
+#else
   SDL_GL_SwapWindow(mWindow);
+#endif
 }
 
 auto Window::open() const -> bool

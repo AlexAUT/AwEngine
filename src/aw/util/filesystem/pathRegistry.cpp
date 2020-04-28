@@ -1,6 +1,12 @@
 #include "aw/util/filesystem/pathRegistry.hpp"
 
+#ifndef AW_OS_ANDROID
 #include "platform_folders.h"
+#else
+#include "SDL.h"
+#endif
+
+#include <aw/config.hpp>
 
 #include <cassert>
 
@@ -15,12 +21,26 @@ PathRegistry::PathRegistry(int argc, const char* const* argv, const std::string&
 
   mExecutablePath = fs::path(argv[0]).parent_path();
 
+#ifndef AW_OS_ANDROID
   mAssetPath = mWorkingPath / "assets";
+#else
+  mAssetPath = "";
+#endif
 
+#ifndef AW_OS_ANDROID
   mConfigPath = fs::path(sago::getConfigHome()).append(appName);
+#else
+  mConfigPath = SDL_AndroidGetInternalStoragePath();
+  mConfigPath = mConfigPath / "config";
+#endif
   fs::create_directories(mConfigPath);
 
+#ifndef AW_OS_ANDROID
   mLogPath = fs::path(sago::getCacheDir()).append(appName);
+#else
+  mLogPath = SDL_AndroidGetInternalStoragePath();
+  mLogPath = mLogPath / "log";
+#endif
   fs::create_directories(mLogPath);
 }
 

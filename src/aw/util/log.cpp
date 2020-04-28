@@ -6,6 +6,10 @@
 #include "spdlog/sinks/stdout_color_sinks.h"
 #include "spdlog/spdlog.h"
 
+#ifdef AW_OS_ANDROID
+#endif
+#include "spdlog/sinks/android_sink.h"
+
 #include <memory>
 
 namespace aw {
@@ -15,9 +19,14 @@ std::shared_ptr<spdlog::logger> engineLogger;
 
 auto init(std::string appName, const fs::path& logPath) -> bool
 {
+#ifndef AW_OS_ANDROID
   auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
   console_sink->set_color_mode(spdlog::color_mode::always);
   console_sink->set_level(spdlog::level::debug);
+#else
+  auto console_sink = std::make_shared<spdlog::sinks::android_sink_mt>();
+  console_sink->set_level(spdlog::level::debug);
+#endif
 
   auto logFile = logPath / "log.txt";
   auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(logFile.string(), true);

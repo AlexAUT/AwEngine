@@ -53,8 +53,8 @@ void ParticleSystem::update(aw::Seconds dt, View view)
         auto pos = transform.position() +
                    aw::Vec3{sample(spawner.position[0]), sample(spawner.position[1]), sample(spawner.position[2])};
 
-        auto pos1 = transform.transform() * aw::Vec4{sample(spawner.position[0]), sample(spawner.position[1]),
-                                                     sample(spawner.position[2]), 1.0};
+        //        auto pos1 = transform.transform() * aw::Vec4{sample(spawner.position[0]), sample(spawner.position[1]),
+        //                                                     sample(spawner.position[2]), 1.0};
 
         auto velocity =
             transform.transform() * aw::Vec4{sample(spawner.velocityDir[0]), 0.f, sample(spawner.velocityDir[1]), 0.f};

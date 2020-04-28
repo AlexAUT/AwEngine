@@ -4,6 +4,10 @@
 #include "aw/config.hpp"
 #include "aw/util/math/vector.hpp"
 
+#ifdef AW_OS_ANDROID
+#include "SDL_egl.h"
+#endif
+
 namespace aw {
 struct WindowSettings;
 
@@ -37,5 +41,10 @@ private:
   SDL_Window* mWindow;
   SDL_GLContext mContext;
   const msg::Bus& mBus;
+
+#ifdef AW_OS_ANDROID
+  EGLSurface mSurface;
+  EGLDisplay mDisplay;
+#endif
 };
 } // namespace aw

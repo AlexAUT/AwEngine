@@ -1,4 +1,8 @@
-set(FETCHCONTENT_BASE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/dependencies)
+if (${CMAKE_SYSTEM_NAME} STREQUAL "Android")
+  set(FETCHCONTENT_BASE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/android)
+else()
+  set(FETCHCONTENT_BASE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/dependencies)
+endif()
 
 function(loadDependencyFromGit name url tag)
   FetchContent_Declare(

@@ -13,6 +13,7 @@ Engine::Engine(int argc, char** argv, const std::string& appName) :
     // Be careful to not remove the log init call as first thing this constructor does
     mWindow{WindowSettings{appName, aw::Vec2u{1280, 720}}, mBus}
 {
+  ENGINE_ERROR("LOG PATH {}", mPathRegistry.logPath().c_str());
   [[maybe_unused]] auto temp = mBus.channel<SDL_Event>().subscribeUnsafe([this](SDL_Event e) {
     if (e.type == SDL_WINDOWEVENT && e.window.type == SDL_WINDOWEVENT_CLOSE) {
       shouldTerminate(true);
@@ -32,7 +33,7 @@ void Engine::run()
 
   aw::Clock frameClock;
   aw::Seconds frameTime{0.f};
-  const aw::Seconds updateRate{1.f / 60.f};
+  const aw::Seconds updateRate{1.f / 120.f};
 
   aw::perf::Section frameSection("Engine::frameTime");
   aw::perf::Section updateSection("Engine::update");
@@ -49,22 +50,27 @@ void Engine::run()
       frameClock.restart();
     } else {
       mWindow.update();
+      ENGINE_WARN("Dt {:.5}", std::chrono::duration_cast<aw::Seconds>(frameClock.getElapsedTime()).count());
       frameTime += frameClock.restart();
+      int updateCount = 0;
       while (frameTime >= updateRate) {
         activeState->update(updateRate);
         frameTime -= updateRate;
+        updateCount++;
       }
+
+      // ENGINE_WARN("Updatecount: {}, Left over: {:.2f}", updateCount, frameTime.count() / updateRate.count());
     }
 
     updateSection.end();
 
     renderSection.start();
+
     activeState->render();
+    mWindow.display();
 
     renderSection.end();
     frameSection.end();
-
-    mWindow.display();
 
     // Check for new active state, if so always update the system with 0dt to ensure update is called before the first
     // render
