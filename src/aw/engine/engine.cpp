@@ -50,7 +50,7 @@ void Engine::run()
       frameClock.restart();
     } else {
       mWindow.update();
-      ENGINE_WARN("Dt {:.5}", std::chrono::duration_cast<aw::Seconds>(frameClock.getElapsedTime()).count());
+      /* ENGINE_WARN("Dt {:.5}", std::chrono::duration_cast<aw::Seconds>(frameClock.getElapsedTime()).count()); */
       frameTime += frameClock.restart();
       int updateCount = 0;
       while (frameTime >= updateRate) {
